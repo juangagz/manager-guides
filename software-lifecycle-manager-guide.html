@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Lifecycle — Guía para Managers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap');
+
+  :root {
+    --bg: #0e0e12;
+    --surface: #16161d;
+    --border: #2a2a38;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #fb923c;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #f87171;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 1.5rem 1.5rem;
+  }
+
+  header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  header h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+
+  nav button {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  nav button:hover { border-color: var(--accent); color: var(--accent); }
+  nav button.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+  main { padding: 1.5rem; max-width: 780px; }
+
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--accent);
+  }
+
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.4rem;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 0.8rem; font-size: 0.92rem; }
+
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+  }
+
+  .card .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .card p { font-size: 0.83rem; color: #94a3b8; margin: 0; }
+
+  /* Diff comparison */
+  .diff {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+
+  .diff-col {
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .diff-col .diff-header {
+    padding: 0.5rem 0.8rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .diff-col.left .diff-header { background: rgba(110,231,183,0.12); color: var(--accent); }
+  .diff-col.right .diff-header { background: rgba(129,140,248,0.12); color: var(--accent2); }
+
+  .diff-col ul {
+    padding: 0.8rem 0.8rem 0.8rem 1.4rem;
+    list-style: disc;
+  }
+
+  .diff-col ul li { font-size: 0.83rem; color: #94a3b8; margin-bottom: 0.3rem; }
+
+  /* Timeline */
+  .timeline { margin: 1rem 0; }
+
+  .tl-item {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.2rem;
+    position: relative;
+  }
+
+  .tl-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 1.1rem;
+    top: 2.2rem;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tl-dot {
+    width: 2.2rem;
+    height: 2.2rem;
+    min-width: 2.2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--accent);
+  }
+
+  .tl-content { flex: 1; }
+  .tl-content strong { font-size: 0.93rem; display: block; margin-bottom: 0.2rem; }
+  .tl-content p { font-size: 0.83rem; color: #94a3b8; margin: 0; }
+
+  /* Quiz */
+  .quiz-q {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .quiz-q p { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.7rem; }
+
+  .quiz-options { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .quiz-options button {
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.5rem 0.8rem;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.83rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .quiz-options button:hover:not(:disabled) { border-color: var(--accent2); color: var(--accent2); }
+  .quiz-options button.correct { border-color: var(--accent); background: rgba(110,231,183,0.1); color: var(--accent); }
+  .quiz-options button.wrong { border-color: var(--danger); background: rgba(248,113,113,0.1); color: var(--danger); }
+
+  .quiz-explanation {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-left: 2px solid var(--accent2);
+    display: none;
+  }
+
+  /* Callout */
+  .callout {
+    border-left: 2px solid var(--accent3);
+    background: rgba(251,146,60,0.07);
+    padding: 0.8rem 1rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+
+  .callout strong { color: var(--accent3); display: block; margin-bottom: 0.2rem; font-size: 0.75rem; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin: 1rem 0; }
+  th { text-align: left; padding: 0.5rem 0.7rem; background: var(--surface); color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; }
+  td { padding: 0.5rem 0.7rem; border-top: 1px solid var(--border); color: #94a3b8; vertical-align: top; }
+  td strong { color: var(--text); }
+
+  @media (max-width: 500px) {
+    .diff { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Manager's Field Guide</div>
+  <h1>Software Development Lifecycle</h1>
+  <p>Lo que todo manager no-dev necesita saber para hablar con su equipo</p>
+</header>
+
+<nav id="nav">
+  <button class="active" onclick="show('ciclo')">El ciclo SDLC</button>
+  <button onclick="show('metodologias')">Metodologías</button>
+  <button onclick="show('testing')">QA vs Testing vs Automation</button>
+  <button onclick="show('roles')">Roles del equipo</button>
+  <button onclick="show('entornos')">Entornos</button>
+  <button onclick="show('deuda')">Deuda técnica</button>
+  <button onclick="show('quiz')">Quiz rápido</button>
+</nav>
+
+<main>
+
+<!-- ───── SDLC ───── -->
+<div class="section visible" id="ciclo">
+  <h2>El ciclo de vida del software (SDLC)</h2>
+  <div class="subtitle">software development life cycle — el mapa general</div>
+
+  <p>Todo software pasa por las mismas fases, sin importar el tamaño de la empresa. Lo que cambia es qué tan formal, rápido, o iterativo es el proceso.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">01</div>
+      <div class="tl-content">
+        <strong>Planeación y Requerimientos</strong>
+        <p>¿Qué problema resuelve? ¿Para quién? Se define el alcance, los stakeholders, y las restricciones. El output es un documento de requerimientos o un backlog inicial.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">02</div>
+      <div class="tl-content">
+        <strong>Diseño</strong>
+        <p>Arquitectura del sistema, diseño de base de datos, flujos de UI/UX. Los devs senior y arquitectos deciden cómo se va a construir antes de escribir código.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">03</div>
+      <div class="tl-content">
+        <strong>Desarrollo (Coding)</strong>
+        <p>Los developers escriben el código según el diseño. Es la fase más visible pero no siempre la más larga.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">04</div>
+      <div class="tl-content">
+        <strong>Testing / QA</strong>
+        <p>Se verifica que el software funcione como se esperaba. Incluye pruebas funcionales, de regresión, de carga y más. (Ver sección dedicada.)</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">05</div>
+      <div class="tl-content">
+        <strong>Deployment</strong>
+        <p>El software se instala en producción. Puede ser un "release" grande o deployments continuos varias veces al día.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">06</div>
+      <div class="tl-content">
+        <strong>Mantenimiento y Operaciones</strong>
+        <p>Una vez en producción, el software necesita monitoreo, corrección de bugs, y mejoras. Esta fase nunca termina mientras el producto esté activo.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Para el manager</strong>
+    Tu trabajo en este ciclo es asegurar que las transiciones entre fases sean claras: ¿quién aprueba que algo está listo para pasar a la siguiente fase? ¿Hay criterios de salida ("definition of done")?
+  </div>
+</div>
+
+<!-- ───── METODOLOGÍAS ───── -->
+<div class="section" id="metodologias">
+  <h2>Metodologías de desarrollo</h2>
+  <div class="subtitle">cómo se organiza el trabajo en la práctica</div>
+
+  <div class="diff">
+    <div class="diff-col left">
+      <div class="diff-header">WATERFALL (Cascada)</div>
+      <ul>
+        <li>Fases secuenciales: una termina antes de que empiece la siguiente</li>
+        <li>Mucha documentación al inicio</li>
+        <li>Ideal para proyectos con requerimientos muy fijos (ej. contratos gubernamentales)</li>
+        <li>Si algo cambia a mitad de camino, es costoso</li>
+        <li>Entrega al final del proyecto</li>
+      </ul>
+    </div>
+    <div class="diff-col right">
+      <div class="diff-header">AGILE (Ágil)</div>
+      <ul>
+        <li>Iterativo: ciclos cortos (sprints) de 1–4 semanas</li>
+        <li>Se entrega valor incremental en cada ciclo</li>
+        <li>Requerimientos pueden cambiar entre sprints</li>
+        <li>Más colaboración continua con el cliente/usuario</li>
+        <li>La mayoría de empresas de software lo usan hoy</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Scrum — el framework ágil más común</h3>
+  <p>Scrum organiza el trabajo en <strong>Sprints</strong>. Los eventos clave que tu equipo probablemente hace:</p>
+
+  <table>
+    <tr><th>Evento</th><th>Qué es</th><th>Tu rol como manager</th></tr>
+    <tr><td><strong>Sprint Planning</strong></td><td>Seleccionar qué se hará en el sprint (1–2 semanas)</td><td>Asegurar que las prioridades de negocio estén reflejadas</td></tr>
+    <tr><td><strong>Daily Standup</strong></td><td>Reunión diaria de 15 min: ayer / hoy / bloqueos</td><td>Escuchar bloqueos, no micro-gestionar</td></tr>
+    <tr><td><strong>Sprint Review</strong></td><td>Demo de lo que se construyó al stakeholder</td><td>Dar feedback real, validar si cumple expectativas</td></tr>
+    <tr><td><strong>Retrospectiva</strong></td><td>El equipo reflexiona: qué salió bien / qué mejorar</td><td>Crear espacio seguro para feedback honesto</td></tr>
+  </table>
+
+  <h3>Kanban — flujo continuo</h3>
+  <p>Alternativa a Scrum. No hay sprints fijos; las tareas fluyen de "To Do → In Progress → Done". Bueno para equipos de soporte o maintenance. El tablero (Jira, Trello, Linear) es la herramienta central.</p>
+
+  <div class="callout">
+    <strong>Vocabulario clave</strong>
+    <strong>Backlog:</strong> lista priorizada de todo lo que el equipo podría construir.<br>
+    <strong>User Story:</strong> requerimiento escrito desde la perspectiva del usuario ("Como usuario quiero… para poder…").<br>
+    <strong>Velocity:</strong> cuánto trabajo completa un equipo por sprint. Sirve para estimar fechas.
+  </div>
+</div>
+
+<!-- ───── TESTING ───── -->
+<div class="section" id="testing">
+  <h2>QA vs Testing vs Automation</h2>
+  <div class="subtitle">la confusión más común en equipos de software</div>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="tag">Concepto amplio</span>
+      <h4>QA — Quality Assurance</h4>
+      <p>Es el proceso completo de garantizar calidad. No solo probar: incluye revisar requerimientos, procesos, estándares, y prevenir defectos antes de que ocurran. Es una cultura, no solo un rol.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Actividad específica</span>
+      <h4>Testing (QC)</h4>
+      <p>Es la ejecución de pruebas sobre el software construido. Detecta bugs. Es parte de QA, pero QA es más amplio. "Testing es encontrar bugs; QA es no tener que encontrarlos."</p>
+    </div>
+    <div class="card">
+      <span class="tag">Herramienta / técnica</span>
+      <h4>Automation Testing</h4>
+      <p>Testing ejecutado por scripts, no por humanos. Más rápido, repetible, ideal para regressions. Requiere inversión inicial para crear los scripts, pero ahorra tiempo a largo plazo.</p>
+    </div>
+  </div>
+
+  <h3>Tipos de pruebas — de más básico a más complejo</h3>
+
+  <table>
+    <tr><th>Tipo</th><th>Qué prueba</th><th>Quién lo hace</th></tr>
+    <tr>
+      <td><strong>Unit Test</strong></td>
+      <td>Una función o componente aislado. "¿Esta función hace lo que dice?"</td>
+      <td>El mismo developer</td>
+    </tr>
+    <tr>
+      <td><strong>Integration Test</strong></td>
+      <td>Cómo se comunican dos o más partes del sistema juntas</td>
+      <td>Developers / QA</td>
+    </tr>
+    <tr>
+      <td><strong>End-to-End (E2E)</strong></td>
+      <td>Flujo completo del usuario, de inicio a fin. "El usuario puede comprar un producto"</td>
+      <td>QA / Automation</td>
+    </tr>
+    <tr>
+      <td><strong>Regression Test</strong></td>
+      <td>Verificar que cambios nuevos no rompieron algo que ya funcionaba</td>
+      <td>Idealmente automatizado</td>
+    </tr>
+    <tr>
+      <td><strong>Performance / Load Test</strong></td>
+      <td>¿Qué pasa si 10,000 usuarios entran al mismo tiempo?</td>
+      <td>QA especializado / DevOps</td>
+    </tr>
+    <tr>
+      <td><strong>UAT (User Acceptance Test)</strong></td>
+      <td>El cliente o usuario final valida que cumple sus necesidades reales</td>
+      <td>Negocio / cliente</td>
+    </tr>
+    <tr>
+      <td><strong>Smoke Test</strong></td>
+      <td>Prueba rápida post-deploy: "¿Lo más básico funciona?"</td>
+      <td>QA / automatizado</td>
+    </tr>
+  </table>
+
+  <h3>La Pirámide de Testing</h3>
+  <p>Un principio guía: tener <strong>muchos unit tests</strong> (baratos, rápidos), <strong>menos integration tests</strong>, y <strong>pocos E2E</strong> (costosos, lentos). Si tu equipo tiene solo tests E2E, hay un problema de arquitectura.</p>
+
+  <div class="callout">
+    <strong>Señal de alerta como manager</strong>
+    Si el equipo dice "no tenemos tiempo para tests", eso es deuda técnica acumulándose. Los bugs en producción son mucho más caros que invertir en testing antes. Pregunta: ¿qué porcentaje del código tiene cobertura de tests (test coverage)?
+  </div>
+</div>
+
+<!-- ───── ROLES ───── -->
+<div class="section" id="roles">
+  <h2>Roles en un equipo de software</h2>
+  <div class="subtitle">quién hace qué — y a quién preguntarle qué</div>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="tag">Desarrollo</span>
+      <h4>Frontend Developer</h4>
+      <p>Construye lo que el usuario ve: interfaces, botones, flujos visuales. Trabaja con HTML, CSS, JavaScript / frameworks como React o Vue.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Desarrollo</span>
+      <h4>Backend Developer</h4>
+      <p>Construye la lógica del servidor, APIs, conexión a base de datos. El usuario no lo ve directamente, pero es lo que hace funcionar todo.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Desarrollo</span>
+      <h4>Full Stack</h4>
+      <p>Hace ambos. Común en startups o equipos pequeños. En empresas grandes suele especializarse con el tiempo.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Infraestructura</span>
+      <h4>DevOps / SRE</h4>
+      <p>Gestiona pipelines de CI/CD, infraestructura en cloud, monitoreo, y disponibilidad. "El que hace que el código llegue a producción de forma confiable."</p>
+    </div>
+    <div class="card">
+      <span class="tag">Calidad</span>
+      <h4>QA Engineer</h4>
+      <p>Diseña y ejecuta estrategias de testing. En equipos modernos escribe tests automatizados. Puede especializarse en performance, seguridad, etc.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Diseño</span>
+      <h4>UX/UI Designer</h4>
+      <p>Diseña cómo funciona (UX) y cómo se ve (UI) el producto. El output son wireframes, prototipos en Figma. Trabaja antes de que el dev empiece a codear.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Producto</span>
+      <h4>Product Manager (PM)</h4>
+      <p>Define qué construir y por qué. Es el dueño del backlog y el puente entre negocio y equipo técnico. No es lo mismo que un Project Manager.</p>
+    </div>
+    <div class="card">
+      <span class="tag">Liderazgo técnico</span>
+      <h4>Tech Lead / Architect</h4>
+      <p>Developer senior que guía decisiones técnicas: qué tecnologías usar, cómo está estructurado el sistema, revisión de código (code review).</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Confusión clásica: PM vs Project Manager</strong>
+    Product Manager define QUÉ construir (prioridades, visión del producto). Project Manager gestiona CÓMO se ejecuta (tiempos, recursos, riesgos del proyecto). En muchas empresas el mismo rol hace ambos.
+  </div>
+</div>
+
+<!-- ───── ENTORNOS ───── -->
+<div class="section" id="entornos">
+  <h2>Entornos de despliegue</h2>
+  <div class="subtitle">dev / staging / production — por qué existen</div>
+
+  <p>El código no va directo de la cabeza del developer al usuario. Pasa por entornos que aíslan riesgos.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot" style="color: var(--accent2)">DEV</div>
+      <div class="tl-content">
+        <strong>Development (Local / Dev)</strong>
+        <p>El developer trabaja en su máquina o un servidor de desarrollo. Nada aquí afecta a usuarios reales. Puede estar roto en cualquier momento.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="color: var(--accent3)">STG</div>
+      <div class="tl-content">
+        <strong>Staging / Pre-producción / QA</strong>
+        <p>Espejo de producción con datos de prueba. Aquí QA hace sus pruebas. Los stakeholders pueden revisar antes del release. <em>Lo que funciona aquí, debería funcionar en producción.</em></p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="color: var(--accent)">PROD</div>
+      <div class="tl-content">
+        <strong>Production</strong>
+        <p>El entorno real. Usuarios reales, datos reales, dinero real. Un bug aquí tiene impacto directo en el negocio. Los deployments a producción deben ser controlados.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>CI/CD — la tubería que mueve el código</h3>
+
+  <div class="diff">
+    <div class="diff-col left">
+      <div class="diff-header">CI — Continuous Integration</div>
+      <ul>
+        <li>Cada vez que un dev sube código, se ejecutan tests automáticamente</li>
+        <li>Detecta conflictos entre el trabajo de diferentes devs</li>
+        <li>Si los tests fallan, el merge se bloquea</li>
+        <li>Herramientas: GitHub Actions, GitLab CI, Jenkins</li>
+      </ul>
+    </div>
+    <div class="diff-col right">
+      <div class="diff-header">CD — Continuous Delivery/Deployment</div>
+      <ul>
+        <li>Automatiza el deploy a staging o producción</li>
+        <li>Delivery: el deploy requiere aprobación manual</li>
+        <li>Deployment: el deploy es 100% automático si pasan los tests</li>
+        <li>Empresas maduras hacen múltiples deploys diarios</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Lo que debes saber como manager</strong>
+    Si tu equipo no tiene CI/CD, cada deploy es manual y riesgoso. Pregunta: ¿cuánto tiempo toma ir de código aprobado a producción? Si la respuesta es "días", hay una oportunidad de mejora.
+  </div>
+</div>
+
+<!-- ───── DEUDA TÉCNICA ───── -->
+<div class="section" id="deuda">
+  <h2>Deuda técnica y otros conceptos de salud del sistema</h2>
+  <div class="subtitle">lo que tu equipo dice y lo que realmente significa</div>
+
+  <table>
+    <tr><th>Término</th><th>Qué significa para tu equipo</th><th>Qué significa para el negocio</th></tr>
+    <tr>
+      <td><strong>Deuda técnica</strong></td>
+      <td>Código escrito rápido o sin las mejores prácticas, que habrá que refactorizar después</td>
+      <td>Cada sprint futuro cuesta más. Nuevas features tardan más. Más bugs.</td>
+    </tr>
+    <tr>
+      <td><strong>Refactoring</strong></td>
+      <td>Reescribir código existente para hacerlo más limpio, sin cambiar lo que hace</td>
+      <td>Inversión en velocidad futura. No produce features visibles a corto plazo.</td>
+    </tr>
+    <tr>
+      <td><strong>Bug / Defecto</strong></td>
+      <td>El software hace algo que no debería, o no hace algo que debería</td>
+      <td>Puede ser crítico (sistema caído) o menor (error visual). Prioridad depende del impacto.</td>
+    </tr>
+    <tr>
+      <td><strong>Hotfix</strong></td>
+      <td>Fix urgente en producción que se salta el proceso normal</td>
+      <td>Necesario a veces, pero si ocurre seguido, hay problemas de calidad.</td>
+    </tr>
+    <tr>
+      <td><strong>Scope creep</strong></td>
+      <td>Requerimientos que crecen en medio del desarrollo sin ajustar plazo ni recursos</td>
+      <td>La causa #1 de proyectos retrasados. Necesitas control de cambios.</td>
+    </tr>
+    <tr>
+      <td><strong>Code review</strong></td>
+      <td>Un developer revisa el código de otro antes de mergearlo</td>
+      <td>Reduce bugs, distribuye conocimiento, mantiene estándares. No es burocracia.</td>
+    </tr>
+    <tr>
+      <td><strong>Feature flag</strong></td>
+      <td>Un switch que activa/desactiva una feature sin hacer deploy nuevo</td>
+      <td>Permite lanzar a un subgrupo de usuarios primero, o apagar algo rápido.</td>
+    </tr>
+    <tr>
+      <td><strong>Monitoring / Observability</strong></td>
+      <td>Herramientas que muestran qué está pasando en producción en tiempo real</td>
+      <td>Sin esto, te enteras de los problemas por los usuarios, no por el sistema.</td>
+    </tr>
+  </table>
+
+  <div class="callout">
+    <strong>La pregunta que debes hacer una vez al trimestre</strong>
+    "¿Qué porcentaje de nuestro tiempo lo gastamos en deuda técnica vs features nuevas?" Un equipo sano dedica ~20% a mejoras técnicas. Si es 0%, la velocidad bajará con el tiempo.
+  </div>
+</div>
+
+<!-- ───── QUIZ ───── -->
+<div class="section" id="quiz">
+  <h2>Quiz rápido</h2>
+  <div class="subtitle">valida lo que absorbiste</div>
+
+  <div class="quiz-q" id="q1">
+    <p>Tu equipo dice "necesitamos hacer regression testing antes del release". ¿Qué significa?</p>
+    <div class="quiz-options">
+      <button onclick="answer('q1', this, false)">Probar las nuevas features que se construyeron en este sprint</button>
+      <button onclick="answer('q1', this, true)">Verificar que los cambios nuevos no rompieron funcionalidades que ya funcionaban</button>
+      <button onclick="answer('q1', this, false)">Hacer que los usuarios finales prueben el sistema</button>
+    </div>
+    <div class="quiz-explanation" id="q1-exp">Los regression tests protegen lo que ya funciona. Son especialmente importantes en sistemas grandes donde un cambio puede tener efectos inesperados en partes aparentemente no relacionadas.</div>
+  </div>
+
+  <div class="quiz-q" id="q2">
+    <p>¿Cuál es la diferencia entre QA y Testing?</p>
+    <div class="quiz-options">
+      <button onclick="answer('q2', this, false)">Son lo mismo, solo nombres diferentes</button>
+      <button onclick="answer('q2', this, false)">Testing es manual, QA es automatizado</button>
+      <button onclick="answer('q2', this, true)">QA es el proceso amplio de garantizar calidad; Testing es la ejecución de pruebas, que es parte de QA</button>
+    </div>
+    <div class="quiz-explanation" id="q2-exp">QA incluye revisar requerimientos, procesos, y prevenir defectos. Testing es encontrarlos una vez que el código existe. Un buen equipo de QA hace que el testing sea menos necesario.</div>
+  </div>
+
+  <div class="quiz-q" id="q3">
+    <p>El equipo pide tiempo para "refactoring". Como manager, ¿cómo lo interpretas?</p>
+    <div class="quiz-options">
+      <button onclick="answer('q3', this, false)">Están perdiendo tiempo reescribiendo algo que ya funciona</button>
+      <button onclick="answer('q3', this, false)">Hay bugs que necesitan corrección urgente</button>
+      <button onclick="answer('q3', this, true)">Necesitan limpiar deuda técnica para mantener la velocidad de desarrollo a futuro</button>
+    </div>
+    <div class="quiz-explanation" id="q3-exp">Negar el refactoring genera más deuda técnica. El código que no se mantiene se vuelve más costoso de cambiar con el tiempo, frenando las nuevas features.</div>
+  </div>
+
+  <div class="quiz-q" id="q4">
+    <p>¿Qué hace un DevOps engineer que un Backend developer no hace?</p>
+    <div class="quiz-options">
+      <button onclick="answer('q4', this, false)">Escribe la lógica de negocio de la aplicación</button>
+      <button onclick="answer('q4', this, true)">Gestiona la infraestructura, los pipelines de CI/CD, y el proceso de deployment a producción</button>
+      <button onclick="answer('q4', this, false)">Diseña las interfaces de usuario</button>
+    </div>
+    <div class="quiz-explanation" id="q4-exp">DevOps se ocupa del "cómo llega el código a producción de forma confiable". El Backend developer se ocupa de "qué hace el código cuando ya está ahí".</div>
+  </div>
+
+  <div class="quiz-q" id="q5">
+    <p>Tu equipo tiene un "hotfix en producción" todos los viernes. ¿Qué señal da esto?</p>
+    <div class="quiz-options">
+      <button onclick="answer('q5', this, false)">El equipo es ágil y responde rápido a los usuarios</button>
+      <button onclick="answer('q5', this, true)">Hay un problema sistémico de calidad: los bugs llegan a producción con frecuencia porque el testing es insuficiente</button>
+      <button onclick="answer('q5', this, false)">Es normal en cualquier equipo de software</button>
+    </div>
+    <div class="quiz-explanation" id="q5-exp">Los hotfixes ocasionales son normales. Frecuentes sugieren que el proceso de QA no está filtrando problemas antes del release. Es una señal de deuda técnica o falta de automation.</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+    document.querySelectorAll('nav button').forEach((b, i) => {
+      b.classList.toggle('active', b.getAttribute('onclick').includes("'" + id + "'"));
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function answer(qId, btn, correct) {
+    const q = document.getElementById(qId);
+    const btns = q.querySelectorAll('button');
+    btns.forEach(b => b.disabled = true);
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) {
+      btns.forEach(b => {
+        if (b !== btn) {
+          // Find and highlight correct one
+          b.setAttribute('data-check', 'true');
+        }
+      });
+      // We need to mark the correct button — re-run to find it
+      btns.forEach(b => { if (b.onclick && b !== btn) b.style.opacity = '0.4'; });
+    }
+    document.getElementById(qId + '-exp').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

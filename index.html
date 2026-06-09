@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager's Field Guides</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #07090f;
+    --s1: #0c0f1a;
+    --border: #1c2740;
+    --blue: #38bdf8;
+    --teal: #2dd4bf;
+    --violet: #a78bfa;
+    --gold: #f59e0b;
+    --text: #e2e8f0;
+    --sub: #7d97b8;
+    --muted: #3d5470;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* GLOW */
+  .glow-1 {
+    position: fixed;
+    top: -120px; left: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(56,189,248,0.055) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-2 {
+    position: fixed;
+    bottom: -100px; right: -60px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(167,139,250,0.045) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* LAYOUT */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 3rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--teal);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 0.8rem;
+  }
+
+  h1 .accent { color: var(--blue); }
+
+  .lead {
+    color: var(--sub);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    max-width: 520px;
+    margin-bottom: 0.5rem;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 2.5rem 0;
+  }
+
+  /* CARDS */
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .guide-card {
+    display: block;
+    text-decoration: none;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.4rem 1.5rem;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .guide-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .guide-card.c1::before { background: radial-gradient(ellipse at top left, rgba(56,189,248,0.06), transparent 60%); }
+  .guide-card.c2::before { background: radial-gradient(ellipse at top left, rgba(167,139,250,0.06), transparent 60%); }
+  .guide-card.c3::before { background: radial-gradient(ellipse at top left, rgba(45,212,191,0.06), transparent 60%); }
+
+  .guide-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .guide-card.c1:hover { border-color: rgba(56,189,248,0.4); }
+  .guide-card.c2:hover { border-color: rgba(167,139,250,0.4); }
+  .guide-card.c3:hover { border-color: rgba(45,212,191,0.4); }
+
+  .guide-card:hover::before { opacity: 1; }
+
+  .card-inner { position: relative; z-index: 1; }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .card-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .c1 .card-tag { background: rgba(56,189,248,0.1);  color: var(--blue);   border: 1px solid rgba(56,189,248,0.2); }
+  .c2 .card-tag { background: rgba(167,139,250,0.1); color: var(--violet); border: 1px solid rgba(167,139,250,0.2); }
+  .c3 .card-tag { background: rgba(45,212,191,0.1);  color: var(--teal);   border: 1px solid rgba(45,212,191,0.2); }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    line-height: 1.25;
+  }
+
+  .card-desc {
+    font-size: 0.83rem;
+    color: var(--sub);
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+
+  .card-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .topic {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .card-arrow {
+    position: absolute;
+    top: 1.4rem;
+    right: 1.5rem;
+    font-size: 1rem;
+    color: var(--muted);
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .c1:hover .card-arrow { color: var(--blue);   transform: translate(3px, -3px); }
+  .c2:hover .card-arrow { color: var(--violet); transform: translate(3px, -3px); }
+  .c3:hover .card-arrow { color: var(--teal);   transform: translate(3px, -3px); }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 2.5rem 1.2rem 2rem; }
+    .card-arrow { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="wrap">
+
+  <div class="eyebrow">Manager's Field Guides</div>
+
+  <h1>Guías para managers<br><span class="accent">no técnicos</span></h1>
+
+  <p class="lead">Recursos de referencia para entender proyectos de software, AI y datos — sin necesidad de escribir código.</p>
+
+  <div class="divider"></div>
+
+  <div class="cards">
+
+    <a class="guide-card c1" href="software-lifecycle-manager-guide.html">
+      <span class="card-arrow">↗</span>
+      <div class="card-inner">
+        <div class="card-meta">
+          <span class="card-num">01</span>
+          <span class="card-tag">Software</span>
+        </div>
+        <div class="card-title">Software Development Lifecycle</div>
+        <p class="card-desc">El ciclo SDLC, metodologías ágiles, QA vs Testing vs Automation, roles del equipo, entornos de despliegue y deuda técnica.</p>
+        <div class="card-topics">
+          <span class="topic">SDLC</span>
+          <span class="topic">Scrum / Kanban</span>
+          <span class="topic">QA · Testing · Automation</span>
+          <span class="topic">CI/CD</span>
+          <span class="topic">DevOps</span>
+          <span class="topic">Deuda técnica</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="guide-card c2" href="ai-development-lifecycle-manager-guide.html">
+      <span class="card-arrow">↗</span>
+      <div class="card-inner">
+        <div class="card-meta">
+          <span class="card-num">02</span>
+          <span class="card-tag">AI · ML</span>
+        </div>
+        <div class="card-title">AI & ML Development Lifecycle</div>
+        <p class="card-desc">Del dato crudo al modelo en producción. Incluye GenAI, LLMs, RAG, agentes, MLOps y evaluación de sistemas de IA.</p>
+        <div class="card-topics">
+          <span class="topic">ML Lifecycle</span>
+          <span class="topic">Feature Engineering</span>
+          <span class="topic">MLOps</span>
+          <span class="topic">LLMs · RAG</span>
+          <span class="topic">Agentes AI</span>
+          <span class="topic">Hallucinations</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="guide-card c3" href="data-projects-manager-guide.html">
+      <span class="card-arrow">↗</span>
+      <div class="card-inner">
+        <div class="card-meta">
+          <span class="card-num">03</span>
+          <span class="card-tag">Data</span>
+        </div>
+        <div class="card-title">Proyectos de Datos de Punta a Punta</div>
+        <p class="card-desc">Arquitectura de datos, ingeniería, analítica y Power BI. Roles, tensiones entre equipos, calidad, gobierno y el stack Azure.</p>
+        <div class="card-topics">
+          <span class="topic">Lakehouse · Medallion</span>
+          <span class="topic">dbt · Pipelines</span>
+          <span class="topic">Power BI · DAX</span>
+          <span class="topic">Data Quality</span>
+          <span class="topic">Gobierno</span>
+          <span class="topic">Microsoft Fabric</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+</div>
+
+<footer>manager-guides · github pages</footer>
+
+</body>
+</html>

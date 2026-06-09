@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Projects — Guía para Managers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #07090f;
+    --s1: #0c0f1a;
+    --s2: #111827;
+    --border: #1c2740;
+    --border2: #243352;
+    --gold: #f59e0b;
+    --blue: #38bdf8;
+    --teal: #2dd4bf;
+    --purple: #c084fc;
+    --red: #f87171;
+    --green: #86efac;
+    --text: #e2e8f0;
+    --sub: #7d97b8;
+    --muted: #3d5470;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 400;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    padding: 2.5rem 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -40px;
+    width: 400px; height: 200px;
+    background: radial-gradient(ellipse, rgba(56,189,248,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--teal);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 0.7rem;
+  }
+
+  header h1 {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  header h1 span { color: var(--blue); }
+  header p { color: var(--sub); font-size: 0.88rem; margin-top: 0.5rem; font-weight: 400; }
+
+  /* NAV */
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: rgba(7,9,15,0.96);
+    backdrop-filter: blur(10px);
+    z-index: 20;
+  }
+
+  nav button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  nav button:hover { border-color: var(--blue); color: var(--blue); }
+  nav button.active { background: var(--blue); color: #07090f; border-color: var(--blue); font-weight: 500; }
+
+  main { padding: 2rem 1.5rem; max-width: 860px; }
+
+  .sec { display: none; }
+  .sec.visible { display: block; }
+
+  /* TYPOGRAPHY */
+  h2 { font-size: 1.3rem; font-weight: 700; color: var(--blue); margin-bottom: 0.2rem; }
+
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+
+  h3 { font-size: 0.95rem; font-weight: 600; color: var(--text); margin: 1.8rem 0 0.5rem; }
+
+  p { font-size: 0.87rem; margin-bottom: 0.75rem; color: var(--sub); }
+  p strong { color: var(--text); font-weight: 600; }
+
+  /* FLOW STEPS — expandable */
+  .flow { margin: 1.2rem 0; }
+
+  .flow-item {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .flow-item:hover, .flow-item.open { border-color: var(--border2); }
+  .flow-item.open { border-color: var(--blue); }
+
+  .flow-head {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.75rem 0.9rem;
+    background: var(--s1);
+    user-select: none;
+  }
+
+  .flow-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    min-width: 1.4rem;
+  }
+
+  .flow-item.open .flow-num { color: var(--blue); }
+
+  .flow-title { font-size: 0.9rem; font-weight: 600; flex: 1; }
+
+  .flow-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+
+  .ftag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.57rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .t-de  { background: rgba(56,189,248,0.1);  color: var(--blue);   border: 1px solid rgba(56,189,248,0.2); }
+  .t-arc { background: rgba(192,132,252,0.1); color: var(--purple); border: 1px solid rgba(192,132,252,0.2); }
+  .t-da  { background: rgba(245,158,11,0.1);  color: var(--gold);   border: 1px solid rgba(245,158,11,0.2); }
+  .t-bi  { background: rgba(45,212,191,0.1);  color: var(--teal);   border: 1px solid rgba(45,212,191,0.2); }
+  .t-mgr { background: rgba(134,239,172,0.1); color: var(--green);  border: 1px solid rgba(134,239,172,0.2); }
+
+  .flow-chevron {
+    font-size: 0.7rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .flow-item.open .flow-chevron { transform: rotate(180deg); color: var(--blue); }
+
+  .flow-body {
+    display: none;
+    padding: 1rem 1rem 1rem 3.1rem;
+    background: var(--s2);
+    font-size: 0.85rem;
+    color: var(--sub);
+    line-height: 1.65;
+    border-top: 1px solid var(--border);
+  }
+
+  .flow-item.open .flow-body { display: block; }
+
+  .flow-body .fb-section { margin-bottom: 0.7rem; }
+  .flow-body .fb-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .flow-body .mgr-q {
+    margin-top: 0.7rem;
+    padding: 0.6rem 0.8rem;
+    border-left: 2px solid var(--gold);
+    background: rgba(245,158,11,0.05);
+    border-radius: 0 2px 2px 0;
+    font-size: 0.82rem;
+    color: var(--sub);
+  }
+
+  .flow-body .mgr-q strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  /* CARDS */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap: 0.7rem; margin: 1rem 0; }
+
+  .card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.9rem;
+    transition: border-color 0.15s;
+  }
+  .card:hover { border-color: var(--border2); }
+
+  .card .ctag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .card h4 { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .card p  { font-size: 0.79rem; color: var(--muted); margin: 0; line-height: 1.5; }
+
+  /* COMPARE */
+  .cmp { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px,1fr)); gap: 0.7rem; margin: 1rem 0; }
+
+  .cbox {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .cbox-head {
+    padding: 0.4rem 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .cb-blue   .cbox-head { background: rgba(56,189,248,0.08);  color: var(--blue);   }
+  .cb-purple .cbox-head { background: rgba(192,132,252,0.08); color: var(--purple); }
+  .cb-gold   .cbox-head { background: rgba(245,158,11,0.08);  color: var(--gold);   }
+  .cb-teal   .cbox-head { background: rgba(45,212,191,0.08);  color: var(--teal);   }
+  .cb-green  .cbox-head { background: rgba(134,239,172,0.08); color: var(--green);  }
+  .cb-red    .cbox-head { background: rgba(248,113,113,0.08); color: var(--red);    }
+
+  .cbox ul { padding: 0.75rem 0.8rem 0.75rem 1.3rem; list-style: disc; }
+  .cbox ul li { font-size: 0.79rem; color: var(--sub); margin-bottom: 0.28rem; line-height: 1.4; }
+  .cbox ul li strong { color: var(--text); font-weight: 600; }
+
+  /* TABLE */
+  .twrap { overflow-x: auto; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+  th { text-align: left; padding: 0.45rem 0.7rem; background: var(--s2); color: var(--teal); font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; white-space: nowrap; }
+  td { padding: 0.45rem 0.7rem; border-top: 1px solid var(--border); color: var(--sub); vertical-align: top; }
+  td strong { color: var(--text); font-weight: 600; }
+
+  /* CALLOUT */
+  .callout {
+    padding: 0.75rem 1rem;
+    border-radius: 0 3px 3px 0;
+    margin: 1rem 0;
+    font-size: 0.84rem;
+    color: var(--sub);
+    line-height: 1.6;
+  }
+
+  .callout .clbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .co-gold   { border-left: 2px solid var(--gold);   background: rgba(245,158,11,0.05);  }
+  .co-blue   { border-left: 2px solid var(--blue);   background: rgba(56,189,248,0.05);  }
+  .co-teal   { border-left: 2px solid var(--teal);   background: rgba(45,212,191,0.05);  }
+  .co-purple { border-left: 2px solid var(--purple); background: rgba(192,132,252,0.05); }
+  .co-red    { border-left: 2px solid var(--red);    background: rgba(248,113,113,0.05); }
+  .co-green  { border-left: 2px solid var(--green);  background: rgba(134,239,172,0.05); }
+
+  .co-gold .clbl   { color: var(--gold);   }
+  .co-blue .clbl   { color: var(--blue);   }
+  .co-teal .clbl   { color: var(--teal);   }
+  .co-purple .clbl { color: var(--purple); }
+  .co-red .clbl    { color: var(--red);    }
+  .co-green .clbl  { color: var(--green);  }
+
+  /* LEGEND BAR */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+
+  .legend span { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.06em; }
+
+  /* ROLES */
+  .role-table { margin: 1rem 0; }
+
+  .rrow {
+    display: grid;
+    grid-template-columns: 140px 1fr 1fr;
+    gap: 0.7rem;
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .rname { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .rname small { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--muted); font-weight: 400; margin-top: 0.15rem; }
+  .rfocus { font-size: 0.81rem; color: var(--sub); }
+  .rtools { font-size: 0.78rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
+
+  /* GLOSSARY */
+  .glos { margin: 1rem 0; }
+  .gi {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 0.8rem;
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--border);
+  }
+  .gterm { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--teal); padding-top: 0.1rem; line-height: 1.5; }
+  .gdef  { font-size: 0.82rem; color: var(--sub); }
+  .gdef strong { color: var(--text); font-weight: 600; }
+
+  /* QUIZ */
+  .qcard {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .qnum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+
+  .qtxt { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; line-height: 1.4; }
+
+  .qopts { display: flex; flex-direction: column; gap: 0.38rem; }
+
+  .qopts button {
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.5rem 0.8rem;
+    color: var(--sub);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .qopts button:hover:not(:disabled) { border-color: var(--purple); color: var(--purple); }
+  .qopts button.correct { border-color: var(--green); background: rgba(134,239,172,0.07); color: var(--green); }
+  .qopts button.wrong   { border-color: var(--red);   background: rgba(248,113,113,0.07); color: var(--red); }
+  .qopts button.dim     { opacity: 0.35; }
+
+  .qexp {
+    display: none;
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-left: 2px solid var(--purple);
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  @media (max-width: 540px) {
+    .rrow { grid-template-columns: 1fr; gap: 0.2rem; }
+    .rtools { display: none; }
+    .gi { grid-template-columns: 1fr; gap: 0.15rem; }
+    .gterm { font-size: 0.68rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Manager's Field Guide · Data Edition</div>
+  <h1>Proyectos de <span>Datos</span><br>de punta a punta</h1>
+  <p>Arquitectos de datos · Data Engineers · Data Analysts · Power BI Devs — qué hacen, cómo trabajan juntos, y qué preguntar</p>
+</header>
+
+<nav>
+  <button class="active" onclick="show('ciclo')">Ciclo del proyecto</button>
+  <button onclick="show('arquitectura')">Arquitectura</button>
+  <button onclick="show('ingenieria')">Ingeniería de datos</button>
+  <button onclick="show('analitica')">Analítica & BI</button>
+  <button onclick="show('calidad')">Calidad & Gobierno</button>
+  <button onclick="show('roles')">Roles</button>
+  <button onclick="show('glosario')">Glosario</button>
+  <button onclick="show('quiz')">Quiz</button>
+</nav>
+
+<main>
+
+<!-- ══════ CICLO ══════ -->
+<div class="sec visible" id="ciclo">
+  <h2>El ciclo de un proyecto de datos</h2>
+  <div class="subtitle">desde la necesidad de negocio hasta el dashboard o pipeline en producción</div>
+
+  <p>Un proyecto de datos no empieza con tecnología — empieza con una pregunta de negocio. El camino hasta responderla involucra múltiples roles trabajando en secuencia y en paralelo.</p>
+
+  <div class="legend">
+    <span class="t-arc ftag">Arq</span><span style="color:var(--sub);font-size:0.75rem"> Arquitecto </span>
+    <span class="t-de ftag">DE</span><span style="color:var(--sub);font-size:0.75rem"> Data Engineer </span>
+    <span class="t-da ftag">DA</span><span style="color:var(--sub);font-size:0.75rem"> Data Analyst </span>
+    <span class="t-bi ftag">BI</span><span style="color:var(--sub);font-size:0.75rem"> Power BI Dev </span>
+    <span class="t-mgr ftag">Mgr</span><span style="color:var(--sub);font-size:0.75rem"> Manager </span>
+  </div>
+
+  <p style="font-size:0.79rem; color:var(--muted);">Clic en cada fase para expandir.</p>
+
+  <div class="flow">
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">01</span>
+        <span class="flow-title">Entendimiento del negocio y definición de requerimientos</span>
+        <div class="flow-tags"><span class="ftag t-arc">Arq</span><span class="ftag t-da">DA</span><span class="ftag t-mgr">Mgr</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          Se traduce una necesidad de negocio en requerimientos de datos concretos. ¿Qué pregunta queremos responder? ¿Qué decisión queremos mejorar? ¿Qué proceso queremos automatizar? El output es un documento de requerimientos con fuentes de datos identificadas, frecuencia de actualización esperada, y quién consumirá los resultados.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Pregunta clave</strong>
+          "¿El requerimiento está en términos de negocio o en términos técnicos? Si el equipo ya habla de tablas y columnas antes de entender el problema, hay riesgo de construir algo que nadie use."
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">02</span>
+        <span class="flow-title">Diseño de arquitectura de datos</span>
+        <div class="flow-tags"><span class="ftag t-arc">Arq</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          El arquitecto de datos diseña cómo fluirán los datos: de dónde vienen (fuentes), cómo se mueven (pipelines), dónde se almacenan (data warehouse, lakehouse, data mart), y cómo se exponen al consumidor final. Decide las tecnologías, los patrones (medallion, data mesh, etc.), y las restricciones de seguridad y cumplimiento. Este diseño puede tomar días o semanas según la complejidad.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Pregunta clave</strong>
+          "¿La arquitectura que proponen es para lo que necesitamos hoy, o es para lo que aspiramos en 3 años? Ambas son válidas, pero tienen costos muy distintos."
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">03</span>
+        <span class="flow-title">Exploración y perfilado de fuentes de datos</span>
+        <div class="flow-tags"><span class="ftag t-de">DE</span><span class="ftag t-da">DA</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          Antes de construir pipelines, el equipo analiza las fuentes reales: ¿qué contienen, qué calidad tienen, hay datos nulos, duplicados, inconsistencias? Este <strong>data profiling</strong> descubre problemas que el negocio no sabía que tenía. Es frecuente que los datos reales no coincidan con la documentación existente.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Señal de alerta</strong>
+          Si el equipo saltea el profiling, los bugs de calidad aparecerán mucho más tarde, cuando el costo de corregirlos es mayor. Presupuesta tiempo explícito para esto.
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">04</span>
+        <span class="flow-title">Construcción de pipelines de ingestión</span>
+        <div class="flow-tags"><span class="ftag t-de">DE</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          El data engineer construye los procesos que mueven datos desde las fuentes (bases de datos operacionales, APIs, archivos, eventos en streaming) hacia la zona de almacenamiento central. Puede ser batch (una vez al día, por hora) o streaming (tiempo real). Incluye manejo de errores, reintentos, y logs de ejecución.
+        </div>
+        <div class="fb-section">
+          <span class="fb-label">Conceptos clave</span>
+          <strong>Full load:</strong> cargar todos los datos cada vez. Simple pero costoso en volumen.<br>
+          <strong>Incremental load:</strong> cargar solo lo que cambió desde la última ejecución. Más eficiente.<br>
+          <strong>CDC (Change Data Capture):</strong> capturar cambios en tiempo real desde la base origen.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Pregunta clave</strong>
+          "¿Qué pasa si el pipeline falla a las 3am? ¿Hay alertas? ¿Hay retry automático? ¿Quién es el responsable de guardia?"
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">05</span>
+        <span class="flow-title">Transformación y modelado de datos</span>
+        <div class="flow-tags"><span class="ftag t-de">DE</span><span class="ftag t-arc">Arq</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          Los datos crudos se limpian, enriquecen, y estructuran para que sean útiles al analista. Esto incluye joins entre fuentes, cálculo de métricas derivadas, normalización de formatos, y aplicación de reglas de negocio. El output son tablas o vistas limpias y documentadas. Herramientas como <strong>dbt</strong> permiten hacer estas transformaciones con código versionado y testeado.
+        </div>
+        <div class="fb-section">
+          <span class="fb-label">Modelos de datos comunes</span>
+          <strong>Star schema:</strong> tabla central de hechos rodeada de dimensiones. Óptimo para BI.<br>
+          <strong>Snowflake schema:</strong> variante más normalizada. Más eficiente en espacio, más complejo de consultar.<br>
+          <strong>One Big Table (OBT):</strong> todo en una sola tabla desnormalizada. Fácil de usar, caro en almacenamiento.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Pregunta clave</strong>
+          "¿Las transformaciones están documentadas y tienen tests? Si solo están en la cabeza del DE que las construyó, hay riesgo de bus factor."
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">06</span>
+        <span class="flow-title">Análisis exploratorio y validación</span>
+        <div class="flow-tags"><span class="ftag t-da">DA</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          El data analyst explora los datos transformados para validar que reflejen la realidad del negocio, descubrir patrones, identificar outliers, y formular hipótesis. Esta fase frecuentemente descubre problemas que obligan a volver a la fase de transformación — es iterativa por naturaleza.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Nota importante</strong>
+          El análisis exploratorio no es "perder tiempo" — es el proceso por el cual el equipo entiende si los datos son confiables. Un dashboard construido sobre datos no validados es un riesgo para la toma de decisiones.
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">07</span>
+        <span class="flow-title">Desarrollo de reportes y dashboards (Power BI)</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span><span class="ftag t-da">DA</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          El Power BI developer construye el modelo semántico (antes llamado modelo tabular) en Power BI, crea medidas DAX, y diseña los reportes y dashboards que consumen los usuarios de negocio. Trabaja sobre los datos ya transformados — si los datos fuente cambian, los reportes se actualizan automáticamente en el siguiente refresh.
+        </div>
+        <div class="fb-section">
+          <span class="fb-label">Dos tipos de trabajo muy distintos</span>
+          <strong>Modelo semántico / dataset:</strong> la capa de datos dentro de Power BI, con relaciones, métricas y seguridad. Es infraestructura, no estética.<br>
+          <strong>Reporte / dashboard:</strong> la capa visual. Puede cambiarse sin tocar el modelo.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Señal de alerta</strong>
+          Si el Power BI dev está haciendo transformaciones complejas dentro de Power BI (Power Query, DAX pesado) en lugar de consumir datos ya limpios, hay un problema de arquitectura. Power BI debe ser la capa de presentación, no de transformación.
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">08</span>
+        <span class="flow-title">Validación con negocio (UAT de datos)</span>
+        <div class="flow-tags"><span class="ftag t-da">DA</span><span class="ftag t-mgr">Mgr</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          Los usuarios de negocio validan que los números que ven en los reportes coinciden con la realidad que ellos conocen. Esta fase descubre discrepancias entre la definición técnica de una métrica y la definición que el negocio tenía en mente — algo extremadamente común. Por ejemplo: "ventas" puede significar cosas distintas para finanzas, comercial, y logística.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Tu rol directo</strong>
+          Facilita esta conversación. La discrepancia más frecuente no es un bug — es que dos áreas definen la misma métrica de forma diferente. Necesitas que lleguen a acuerdo antes de publicar el reporte.
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">09</span>
+        <span class="flow-title">Publicación, acceso y gobierno</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span><span class="ftag t-arc">Arq</span><span class="ftag t-mgr">Mgr</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          El reporte se publica en el workspace de Power BI Service con la seguridad correcta: quién puede ver qué datos (RLS — Row Level Security), quién puede editar, quién solo puede leer. Se configura el refresh automático del dataset. Se documenta y se comunica a los usuarios.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Pregunta clave</strong>
+          "¿Quién es el dueño de este reporte a partir de hoy? ¿Quién valida que el refresh sigue funcionando? ¿Quién atiende preguntas de los usuarios?"
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">10</span>
+        <span class="flow-title">Mantenimiento, monitoreo y evolución</span>
+        <div class="flow-tags"><span class="ftag t-de">DE</span><span class="ftag t-bi">BI</span><span class="ftag t-arc">Arq</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <div class="fb-section">
+          <span class="fb-label">Qué ocurre</span>
+          Los pipelines se monitorean: ¿corrió el job? ¿Llegaron los datos a tiempo? ¿Hay anomalías en volumen o calidad? Los reportes se actualizan cuando el negocio cambia. Se añaden nuevas fuentes, nuevas métricas, nuevas páginas. Esta es la fase más larga y más subestimada en estimaciones de proyecto.
+        </div>
+        <div class="mgr-q">
+          <strong>📌 Error clásico de estimación</strong>
+          "Construir" el pipeline y el reporte es el 40% del trabajo. El 60% restante es mantenerlos. Si el contrato o el budget solo cubre la construcción inicial, habrá problemas.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════ ARQUITECTURA ══════ -->
+<div class="sec" id="arquitectura">
+  <h2>Arquitectura de datos</h2>
+  <div class="subtitle">los patrones que el arquitecto elige y por qué importan al negocio</div>
+
+  <h3>Patrones de almacenamiento</h3>
+  <div class="cmp">
+    <div class="cbox cb-blue">
+      <div class="cbox-head">Data Warehouse</div>
+      <ul>
+        <li>Datos <strong>estructurados</strong>, limpios, modelados</li>
+        <li>Optimizado para consultas analíticas rápidas</li>
+        <li>Schema on write: estructura definida al cargar</li>
+        <li>Caro si el volumen es masivo</li>
+        <li>Ej: Azure Synapse, Redshift, BigQuery, Snowflake</li>
+      </ul>
+    </div>
+    <div class="cbox cb-purple">
+      <div class="cbox-head">Data Lake</div>
+      <ul>
+        <li>Almacena <strong>todo</strong>: estructurado, semi, no estructurado</li>
+        <li>Barato para grandes volúmenes (object storage)</li>
+        <li>Schema on read: estructura al consultar</li>
+        <li>Sin gobernanza puede volverse un "data swamp"</li>
+        <li>Ej: Azure Data Lake Storage Gen2, S3</li>
+      </ul>
+    </div>
+    <div class="cbox cb-teal">
+      <div class="cbox-head">Lakehouse</div>
+      <ul>
+        <li>Combina lo mejor de ambos mundos</li>
+        <li>Capa transaccional sobre object storage (Delta, Iceberg)</li>
+        <li>Permite SQL y ML sobre los mismos datos</li>
+        <li>El patrón dominante en empresas modernas</li>
+        <li>Ej: Databricks, Microsoft Fabric, Delta Lake</li>
+      </ul>
+    </div>
+    <div class="cbox cb-gold">
+      <div class="cbox-head">Data Mart</div>
+      <ul>
+        <li>Subconjunto del DW enfocado en un área (ventas, finanzas)</li>
+        <li>Más pequeño, más rápido, más fácil de usar</li>
+        <li>Consume datos ya transformados del DW</li>
+        <li>Lo que suele conectarse directo a Power BI</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>La arquitectura Medallion — el patrón más usado hoy</h3>
+  <p>Organiza los datos en capas según su nivel de procesamiento. Es el estándar en Databricks y Microsoft Fabric.</p>
+
+  <div class="cmp">
+    <div class="cbox cb-red">
+      <div class="cbox-head">Bronze — Capa cruda</div>
+      <ul>
+        <li>Datos tal como llegan de las fuentes</li>
+        <li>Sin transformación, sin limpieza</li>
+        <li>Registro histórico fiel al origen</li>
+        <li>Solo el DE escribe aquí</li>
+      </ul>
+    </div>
+    <div class="cbox cb-gold">
+      <div class="cbox-head">Silver — Capa limpia</div>
+      <ul>
+        <li>Datos limpios, deduplicados, tipados</li>
+        <li>Joins entre fuentes aplicados</li>
+        <li>Validaciones de calidad superadas</li>
+        <li>Disponible para data scientists y analysts</li>
+      </ul>
+    </div>
+    <div class="cbox cb-green">
+      <div class="cbox-head">Gold — Capa de negocio</div>
+      <ul>
+        <li>Métricas de negocio calculadas</li>
+        <li>Agregaciones y modelos dimensionales</li>
+        <li>Optimizado para BI y reporting</li>
+        <li>Lo que consume Power BI directamente</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Batch vs Streaming</h3>
+  <div class="cmp">
+    <div class="cbox cb-blue">
+      <div class="cbox-head">Batch Processing</div>
+      <ul>
+        <li>Los datos se procesan en bloques: cada hora, cada día, etc.</li>
+        <li>Más simple de construir y mantener</li>
+        <li>Suficiente para la mayoría de reportes de negocio</li>
+        <li>Los datos en el dashboard tienen cierto desfase</li>
+        <li>Herramientas: ADF, dbt, Spark en modo batch</li>
+      </ul>
+    </div>
+    <div class="cbox cb-teal">
+      <div class="cbox-head">Streaming / Real-time</div>
+      <ul>
+        <li>Los datos fluyen y se procesan evento a evento</li>
+        <li>Latencia mínima (segundos o menos)</li>
+        <li>Mucho más complejo: manejo de orden, late arrivals, replay</li>
+        <li>Solo necesario si el negocio requiere reacción inmediata</li>
+        <li>Herramientas: Kafka, Event Hubs, Spark Streaming</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout co-gold">
+    <span class="clbl">Para el manager</span>
+    Antes de aprobar una arquitectura de streaming, pregunta: ¿qué decisión de negocio no puede esperar 1 hora? Si la respuesta es vaga, probablemente batch es suficiente y mucho más barato de operar.
+  </div>
+</div>
+
+<!-- ══════ INGENIERÍA ══════ -->
+<div class="sec" id="ingenieria">
+  <h2>Ingeniería de datos en la práctica</h2>
+  <div class="subtitle">lo que hace el data engineer día a día y cómo medirlo</div>
+
+  <h3>El stack de herramientas en Azure (el más común en Chile/LATAM enterprise)</h3>
+
+  <div class="twrap">
+    <table>
+      <tr><th>Capa</th><th>Herramienta</th><th>Qué hace</th></tr>
+      <tr><td><strong>Ingestión</strong></td><td>Azure Data Factory (ADF)</td><td>Orquesta el movimiento de datos entre fuentes y destinos con conectores sin código + actividades custom</td></tr>
+      <tr><td><strong>Almacenamiento raw</strong></td><td>ADLS Gen2</td><td>Object storage barato para el data lake. Organizado en contenedores y carpetas</td></tr>
+      <tr><td><strong>Transformación</strong></td><td>Databricks / Synapse Spark</td><td>Procesamiento distribuido con Python/Scala/SQL sobre los datos del lake</td></tr>
+      <tr><td><strong>Transformación SQL</strong></td><td>dbt (data build tool)</td><td>Transformaciones en SQL versionadas, testeadas y documentadas. Genera la capa Gold/Silver</td></tr>
+      <tr><td><strong>Serving</strong></td><td>Synapse Analytics / Fabric</td><td>SQL dedicado para consultas analíticas rápidas. Lo que conecta con Power BI en producción</td></tr>
+      <tr><td><strong>Orquestación</strong></td><td>ADF / Airflow / Fabric Pipelines</td><td>Controla el orden de ejecución de los pipelines, reintentos, alertas</td></tr>
+      <tr><td><strong>BI</strong></td><td>Power BI</td><td>Modelo semántico + reportes + dashboards para usuarios de negocio</td></tr>
+      <tr><td><strong>Gobernanza</strong></td><td>Microsoft Purview</td><td>Catálogo de datos, linaje, clasificación de sensibilidad, políticas de acceso</td></tr>
+    </table>
+  </div>
+
+  <h3>dbt — por qué el equipo lo menciona tanto</h3>
+  <p><strong>dbt (data build tool)</strong> cambió cómo se hacen las transformaciones de datos. Permite escribir transformaciones en SQL puro, que luego se convierten en tablas o vistas. Lo revolucionario: aplica prácticas de ingeniería de software a los datos.</p>
+
+  <div class="cmp">
+    <div class="cbox cb-red">
+      <div class="cbox-head">Sin dbt (problema)</div>
+      <ul>
+        <li>Scripts SQL sueltos sin versión</li>
+        <li>Nadie sabe el orden de ejecución</li>
+        <li>Sin tests — los bugs llegan al reporte</li>
+        <li>Documentación inexistente o desactualizada</li>
+        <li>Cambiar algo rompe otras cosas silenciosamente</li>
+      </ul>
+    </div>
+    <div class="cbox cb-green">
+      <div class="cbox-head">Con dbt (solución)</div>
+      <ul>
+        <li>Transformaciones en Git — versionadas y revisadas</li>
+        <li>Dependencias automáticas entre modelos</li>
+        <li>Tests de calidad en cada carga</li>
+        <li>Documentación auto-generada con linaje visual</li>
+        <li>CI/CD: los cambios se prueban antes de llegar a producción</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Orquestación — el director de orquesta de los pipelines</h3>
+  <p>Los pipelines no corren solos ni en aislamiento. La orquestación define <strong>cuándo</strong> corren, <strong>en qué orden</strong>, qué pasa si <strong>fallan</strong>, y cómo se <strong>monitorean</strong>.</p>
+
+  <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(190px,1fr))">
+    <div class="card">
+      <span class="ctag" style="color:var(--blue)">Concepto</span>
+      <h4>DAG</h4>
+      <p>Directed Acyclic Graph. El grafo que describe las dependencias entre tareas. "A corre antes que B, que corre antes que C." Lo que dibujan en pizarrón cuando explican el pipeline.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--blue)">Concepto</span>
+      <h4>Trigger</h4>
+      <p>Qué dispara la ejecución del pipeline: un horario (cron), la llegada de un archivo, el fin de otro pipeline, o una llamada manual. El diseño del trigger impacta la latencia de los datos.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--red)">Problema</span>
+      <h4>Backfill</h4>
+      <p>Reprocesar datos históricos cuando se cambia la lógica de transformación o se corrige un error. Puede ser costoso en tiempo y compute si no está planificado.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--gold)">Práctica</span>
+      <h4>Idempotencia</h4>
+      <p>Un pipeline idempotente puede correr múltiples veces con el mismo resultado. Si el pipeline falla y vuelve a correr, no duplica datos. Propiedad crítica para sistemas confiables.</p>
+    </div>
+  </div>
+
+  <div class="callout co-red">
+    <span class="clbl">Señal de alerta — "el pipeline es frágil"</span>
+    Si el equipo dice que el pipeline falla seguido o que "hay que correrlo a mano cuando falla", hay deuda técnica. Un pipeline de producción debe tener reintentos automáticos, alertas, y logs claros de qué falló y por qué.
+  </div>
+</div>
+
+<!-- ══════ ANALÍTICA & BI ══════ -->
+<div class="sec" id="analitica">
+  <h2>Analítica y Power BI</h2>
+  <div class="subtitle">de los datos transformados a la decisión del negocio</div>
+
+  <h3>Los cuatro tipos de analítica</h3>
+  <div class="cmp">
+    <div class="cbox cb-blue">
+      <div class="cbox-head">Descriptiva — ¿Qué pasó?</div>
+      <ul>
+        <li>Reportes de ventas, KPIs históricos</li>
+        <li>Dashboards de seguimiento operacional</li>
+        <li>El 80% de lo que se hace en BI clásico</li>
+        <li>Herramienta: Power BI, Excel, SQL</li>
+      </ul>
+    </div>
+    <div class="cbox cb-gold">
+      <div class="cbox-head">Diagnóstica — ¿Por qué pasó?</div>
+      <ul>
+        <li>Análisis de causa raíz de variaciones</li>
+        <li>Drill-down y correlaciones</li>
+        <li>Requiere más tiempo de analyst</li>
+        <li>Herramienta: Power BI, Python, SQL ad hoc</li>
+      </ul>
+    </div>
+    <div class="cbox cb-purple">
+      <div class="cbox-head">Predictiva — ¿Qué pasará?</div>
+      <ul>
+        <li>Forecasting de demanda, churn, riesgo</li>
+        <li>Modelos estadísticos y ML</li>
+        <li>Requiere data scientists, no solo analysts</li>
+        <li>Herramienta: Python, R, Azure ML</li>
+      </ul>
+    </div>
+    <div class="cbox cb-teal">
+      <div class="cbox-head">Prescriptiva — ¿Qué hacer?</div>
+      <ul>
+        <li>Recomendaciones accionables automatizadas</li>
+        <li>Optimización de decisiones complejas</li>
+        <li>La más avanzada y menos común</li>
+        <li>Herramienta: ML + optimización, agentes AI</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Power BI — las capas que el BI dev construye</h3>
+
+  <div class="flow">
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">①</span>
+        <span class="flow-title">Conexión y Power Query (ETL dentro de Power BI)</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        Se conecta a las fuentes de datos (idealmente ya transformadas por el DE) y se hacen ajustes menores en Power Query. <strong>Señal de alerta:</strong> si hay transformaciones complejas aquí, el trabajo debió haberse hecho antes, en la capa de datos. Power Query es para ajustes finales, no para transformaciones de negocio.
+      </div>
+    </div>
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">②</span>
+        <span class="flow-title">Modelo de datos y relaciones</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        Se definen las relaciones entre tablas (hechos y dimensiones), la cardinalidad y dirección del filtro. Un modelo mal diseñado produce números incorrectos silenciosamente — los visuales se ven bien pero los totales no cuadran. El modelo de datos es la parte más crítica y menos visible del trabajo del BI dev.
+        <div class="mgr-q"><strong>📌 Clave</strong>Un reporte lento casi siempre tiene un modelo mal diseñado, no un problema de hardware.</div>
+      </div>
+    </div>
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">③</span>
+        <span class="flow-title">Medidas DAX</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <strong>DAX (Data Analysis Expressions)</strong> es el lenguaje de fórmulas de Power BI. Se usa para calcular métricas como "ventas del mes vs mes anterior", "% de cumplimiento", "acumulado al año". Las medidas DAX son la lógica de negocio dentro de Power BI — deben ser revisadas con el negocio para asegurar que calculan lo correcto.
+        <div class="mgr-q"><strong>📌 Señal de madurez</strong>Un BI dev maduro escribe medidas DAX documentadas y reutilizables. Si cada reporte tiene sus propias medidas con nombres distintos para lo mismo, hay inconsistencias esperando aparecer.</div>
+      </div>
+    </div>
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">④</span>
+        <span class="flow-title">Diseño de reportes y UX</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span><span class="ftag t-da">DA</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        El diseño visual: qué gráfico usar para qué tipo de dato, jerarquía de información, colores, accesibilidad. Un buen reporte guía al usuario hacia las conclusiones importantes. Un reporte malo tiene 40 gráficos y el usuario no sabe dónde mirar. <strong>Menos siempre es más en BI.</strong>
+      </div>
+    </div>
+    <div class="flow-item" onclick="toggleFlow(this)">
+      <div class="flow-head">
+        <span class="flow-num">⑤</span>
+        <span class="flow-title">RLS — Seguridad a nivel de fila</span>
+        <div class="flow-tags"><span class="ftag t-bi">BI</span><span class="ftag t-arc">Arq</span></div>
+        <span class="flow-chevron">▼</span>
+      </div>
+      <div class="flow-body">
+        <strong>Row Level Security</strong>: cada usuario ve solo los datos que le corresponden (su región, su país, su equipo), aunque todos usen el mismo reporte. Si el gerente de ventas de Chile no debe ver los datos de Argentina, RLS lo garantiza. Es configuración, no código — pero tiene que estar bien diseñada antes del deploy.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout co-blue">
+    <span class="clbl">Para el manager</span>
+    La pregunta más importante antes de aprobar un reporte: "¿A qué decisión de negocio sirve este visual?" Si el equipo no puede responder eso, el reporte probablemente no se va a usar.
+  </div>
+</div>
+
+<!-- ══════ CALIDAD & GOBIERNO ══════ -->
+<div class="sec" id="calidad">
+  <h2>Calidad de datos y Gobierno</h2>
+  <div class="subtitle">el trabajo invisible que hace que los datos sean confiables</div>
+
+  <h3>Las 6 dimensiones de calidad de datos</h3>
+
+  <div class="twrap">
+    <table>
+      <tr><th>Dimensión</th><th>Pregunta que responde</th><th>Ejemplo de problema</th></tr>
+      <tr><td><strong>Completitud</strong></td><td>¿Están todos los datos que deberían estar?</td><td>30% de registros sin campo "email"</td></tr>
+      <tr><td><strong>Exactitud</strong></td><td>¿Los datos reflejan la realidad correctamente?</td><td>Precio de producto desactualizado en la BD</td></tr>
+      <tr><td><strong>Consistencia</strong></td><td>¿Los datos son iguales en sistemas distintos?</td><td>"Juan Pérez" en CRM vs "J. Pérez" en ERP</td></tr>
+      <tr><td><strong>Unicidad</strong></td><td>¿Hay duplicados?</td><td>El mismo cliente registrado 3 veces con distintos IDs</td></tr>
+      <tr><td><strong>Validez</strong></td><td>¿Los datos respetan el formato y rango esperado?</td><td>Fecha de nacimiento: 32/13/2050</td></tr>
+      <tr><td><strong>Oportunidad</strong></td><td>¿Los datos están disponibles cuando se necesitan?</td><td>El pipeline de ventas llega a las 11am cuando el reporte se necesita a las 9am</td></tr>
+    </table>
+  </div>
+
+  <h3>Testing de datos — como el testing de software, pero para datos</h3>
+  <p>Los pipelines de datos deben tener tests automáticos que validan la calidad en cada ejecución. Si un test falla, el pipeline se detiene antes de contaminar las capas siguientes.</p>
+
+  <div class="grid">
+    <div class="card">
+      <span class="ctag" style="color:var(--teal)">Test</span>
+      <h4>Not null</h4>
+      <p>Verifica que columnas críticas no tengan valores nulos. Ej: el ID de cliente nunca puede ser nulo.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--teal)">Test</span>
+      <h4>Unique</h4>
+      <p>Verifica que no haya duplicados en columnas que deben ser únicas. Ej: un pedido no puede aparecer dos veces.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--teal)">Test</span>
+      <h4>Referential integrity</h4>
+      <p>Verifica que las claves foráneas existan en la tabla padre. Ej: cada venta debe tener un producto que exista en el catálogo.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--teal)">Test</span>
+      <h4>Volume anomaly</h4>
+      <p>Verifica que el volumen de datos esté dentro de rangos esperados. Si hoy llegaron 10 registros y ayer 10,000, algo está mal.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--teal)">Test</span>
+      <h4>Freshness</h4>
+      <p>Verifica que los datos se actualizaron recientemente. Si la tabla de ventas no se actualizó en 24h, hay un problema de pipeline.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--teal)">Test</span>
+      <h4>Accepted values</h4>
+      <p>Verifica que los valores de una columna estén dentro de un set válido. Ej: "estado_pedido" solo puede ser: pendiente, enviado, entregado, cancelado.</p>
+    </div>
+  </div>
+
+  <h3>Gobierno de datos — qué es y por qué el equipo lo menciona</h3>
+  <p>El gobierno de datos es el conjunto de políticas, procesos y responsabilidades que aseguran que los datos sean confiables, seguros, y usados correctamente. No es solo tecnología — es organización.</p>
+
+  <div class="grid">
+    <div class="card">
+      <span class="ctag" style="color:var(--purple)">Componente</span>
+      <h4>Data Catalog</h4>
+      <p>Inventario de todos los datasets disponibles: qué contienen, quién los produce, quién los consume, cuándo se actualizan. El Google de los datos de la empresa.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--purple)">Componente</span>
+      <h4>Data Lineage</h4>
+      <p>El mapa de origen de cada dato: de dónde viene, qué transformaciones sufrió, dónde se usa. Cuando un número en el reporte es incorrecto, el lineaje dice dónde está el error.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--purple)">Componente</span>
+      <h4>Data Owner / Steward</h4>
+      <p>Cada dominio de datos tiene un dueño (data owner) que es responsable de su calidad y uso correcto. Sin dueño, nadie cuida los datos.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--purple)">Componente</span>
+      <h4>Políticas de acceso</h4>
+      <p>Quién puede leer, modificar, o borrar cada dato. Especialmente importante para datos personales (GDPR, Ley 19.628 en Chile).</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--purple)">Componente</span>
+      <h4>Definiciones de negocio</h4>
+      <p>El glosario que define qué significa cada métrica de forma oficial. "Ventas" = ¿con o sin impuestos? ¿con o sin devoluciones? Esto evita guerras de cifras.</p>
+    </div>
+    <div class="card">
+      <span class="ctag" style="color:var(--purple)">Componente</span>
+      <h4>Microsoft Purview</h4>
+      <p>La plataforma de Microsoft para catálogo, linaje, clasificación y políticas de acceso. Se integra con todo el stack Azure y Fabric.</p>
+    </div>
+  </div>
+
+  <div class="callout co-red">
+    <span class="clbl">La guerra de cifras — el síntoma más común de falta de gobierno</span>
+    Cuando dos áreas presentan en la misma reunión números distintos para la misma métrica, hay un problema de gobierno. No es un problema técnico — es un problema de definiciones. La solución es un glosario de negocio acordado, no un pipeline mejor.
+  </div>
+</div>
+
+<!-- ══════ ROLES ══════ -->
+<div class="sec" id="roles">
+  <h2>Roles en un equipo de datos</h2>
+  <div class="subtitle">quién hace qué, qué herramientas usa, y a quién preguntarle qué</div>
+
+  <div class="role-table">
+    <div class="rrow" style="border-top:none; padding-top:0;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:0.1em;">ROL</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:0.1em;">FOCO Y RESPONSABILIDAD</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:0.1em;">HERRAMIENTAS TÍPICAS</div>
+    </div>
+
+    <div class="rrow">
+      <div class="rname">Arquitecto de datos<small class="t-arc ftag" style="width:fit-content; margin-top:0.3rem">Arq</small></div>
+      <div class="rfocus">Define cómo se estructura y fluye la información en la empresa. Diseña el blueprint: qué almacenar dónde, con qué tecnología, con qué patrones. Toma decisiones de largo plazo que son costosas de cambiar. Debe equilibrar las necesidades actuales con la escalabilidad futura. No construye pipelines día a día — diseña el sistema que otros construyen.</div>
+      <div class="rtools">Azure / AWS / GCP<br>Synapse, Fabric<br>Databricks<br>Visio / draw.io<br>Purview</div>
+    </div>
+
+    <div class="rrow">
+      <div class="rname">Data Engineer<small class="t-de ftag" style="width:fit-content; margin-top:0.3rem">DE</small></div>
+      <div class="rfocus">Construye y mantiene los pipelines que mueven y transforman datos. Es el "fontanero" de los datos: se asegura de que fluyan con confiabilidad, a tiempo, y con calidad. Trabaja con grandes volúmenes, maneja errores, optimiza rendimiento. Es el perfil más técnico del equipo de datos, con skills cercanas a un backend developer.</div>
+      <div class="rtools">Python / SQL<br>ADF, dbt, Spark<br>ADLS Gen2<br>Airflow / Fabric<br>Git, Docker</div>
+    </div>
+
+    <div class="rrow">
+      <div class="rname">Data Analyst<small class="t-da ftag" style="width:fit-content; margin-top:0.3rem">DA</small></div>
+      <div class="rfocus">Traduce datos en insights accionables para el negocio. Hace análisis ad hoc, responde preguntas específicas, identifica tendencias y anomalías. Es el puente entre el equipo técnico y los stakeholders de negocio. Entiende el negocio profundamente — sabe qué preguntar a los datos. A menudo es quien descubre que los datos tienen problemas de calidad.</div>
+      <div class="rtools">SQL<br>Python / R<br>Excel<br>Power BI<br>Notebooks</div>
+    </div>
+
+    <div class="rrow">
+      <div class="rname">Power BI Developer<small class="t-bi ftag" style="width:fit-content; margin-top:0.3rem">BI</small></div>
+      <div class="rfocus">Especialista en construir la capa de presentación de datos: modelos semánticos, medidas DAX, reportes y dashboards en Power BI. No es solo "hacer gráficos" — el modelo de datos que construye determina si los números son correctos y si el reporte es rápido. En equipos maduros también diseña los data marts que el propio Power BI consume.</div>
+      <div class="rtools">Power BI Desktop<br>DAX / Power Query<br>Power BI Service<br>Tabular Editor<br>SQL</div>
+    </div>
+  </div>
+
+  <h3>Las tensiones típicas entre roles</h3>
+  <div class="cmp">
+    <div class="cbox cb-gold">
+      <div class="cbox-head">Arquitecto vs Data Engineer</div>
+      <ul>
+        <li>El arquitecto diseña; el DE sabe lo que es posible en la práctica</li>
+        <li>Tensión: arquitecturas "ideales" que son difíciles de implementar</li>
+        <li>Solución: el DE debe estar en las conversaciones de diseño desde el inicio</li>
+      </ul>
+    </div>
+    <div class="cbox cb-blue">
+      <div class="cbox-head">Data Engineer vs BI Dev</div>
+      <ul>
+        <li>El DE entrega datos; el BI Dev necesita datos perfectamente estructurados</li>
+        <li>Tensión: "¿por qué Power BI hace transformaciones que debería hacer el DE?"</li>
+        <li>Solución: definir claramente dónde termina el DE y empieza el BI</li>
+      </ul>
+    </div>
+    <div class="cbox cb-purple">
+      <div class="cbox-head">Data Analyst vs negocio</div>
+      <ul>
+        <li>El DA trabaja con lo que hay; el negocio pide lo que cree que es fácil</li>
+        <li>Tensión: "¿por qué tardas una semana en hacer una tabla de Excel?"</li>
+        <li>Solución: mostrar el mapa de dependencias — el reporte depende del pipeline que depende de la calidad del dato fuente</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout co-green">
+    <span class="clbl">Para el manager</span>
+    Una causa frecuente de fricción: <strong>el BI dev recibe datos sucios</strong> y pasa tiempo limpiando en Power BI en lugar de diseñar. Esto es síntoma de que el DE no tiene capacity o la arquitectura no tiene capa silver bien definida. Resolver esto a nivel de proceso ahorra semanas de trabajo.
+  </div>
+</div>
+
+<!-- ══════ GLOSARIO ══════ -->
+<div class="sec" id="glosario">
+  <h2>Glosario de datos</h2>
+  <div class="subtitle">términos que escuchas en reuniones — con definición orientada al negocio</div>
+
+  <div class="glos">
+    <div class="gi"><span class="gterm">Schema</span><span class="gdef">La estructura de una tabla: columnas, tipos de datos, restricciones. "Cambiar el schema" significa cambiar la estructura de los datos, lo que puede romper pipelines y reportes que dependían de esa estructura.</span></div>
+    <div class="gi"><span class="gterm">Partición</span><span class="gdef">Dividir una tabla grande en partes más pequeñas para que las consultas sean más rápidas. Ej: particionar por fecha significa que una consulta de "ventas de enero" solo lee los datos de enero, no toda la tabla.</span></div>
+    <div class="gi"><span class="gterm">Índice</span><span class="gdef">Estructura que acelera las búsquedas en una tabla. Como el índice de un libro. Si las consultas son lentas, el DE puede añadir índices en las columnas más consultadas.</span></div>
+    <div class="gi"><span class="gterm">Join</span><span class="gdef">Combinar dos tablas basándose en una columna en común. Ej: unir la tabla de pedidos con la de clientes por el ID de cliente. Los joins mal diseñados son la causa más frecuente de duplicados en reportes.</span></div>
+    <div class="gi"><span class="gterm">Cardinalidad</span><span class="gdef">Cuántos valores únicos tiene una columna, o la relación entre dos tablas (uno a uno, uno a muchos, muchos a muchos). Las relaciones muchos a muchos en Power BI son la causa más común de números inflados.</span></div>
+    <div class="gi"><span class="gterm">Granularidad</span><span class="gdef">El nivel de detalle de los datos. "Los datos tienen granularidad de transacción" = hay una fila por transacción. "Granularidad diaria" = hay una fila por día. Cambiar la granularidad cambia qué análisis son posibles.</span></div>
+    <div class="gi"><span class="gterm">Latencia</span><span class="gdef">El retraso entre que ocurre un evento y cuando está disponible en el reporte. Si las ventas de hoy aparecen en el dashboard mañana, la latencia es 24h. Reducir latencia requiere mayor complejidad técnica.</span></div>
+    <div class="gi"><span class="gterm">Refresh / Actualización</span><span class="gdef">Cuándo Power BI va a buscar datos nuevos al origen. Puede ser manual, programado (cada X horas), o en tiempo real (Premium). Si el refresh falla, el reporte muestra datos viejos sin advertir al usuario.</span></div>
+    <div class="gi"><span class="gterm">Modelo semántico</span><span class="gdef">Antes llamado "dataset" en Power BI. Es la capa de datos dentro de Power BI: las tablas, relaciones, medidas DAX y jerarquías. Es el corazón del reporte — si está mal, todo está mal. Puede ser compartido entre múltiples reportes.</span></div>
+    <div class="gi"><span class="gterm">DAX</span><span class="gdef">Data Analysis Expressions. El lenguaje de fórmulas de Power BI para calcular métricas. Permite calcular "ventas acumuladas al año", "% cambio vs período anterior", "promedio móvil". Es poderoso pero tiene una curva de aprendizaje pronunciada.</span></div>
+    <div class="gi"><span class="gterm">RLS</span><span class="gdef">Row Level Security. Seguridad que restringe qué filas de datos ve cada usuario. El gerente de zona sur solo ve datos de zona sur, aunque use el mismo reporte que el gerente nacional.</span></div>
+    <div class="gi"><span class="gterm">SLA de datos</span><span class="gdef">Service Level Agreement aplicado a datos. "Los datos de ventas estarán disponibles antes de las 8am". Si el pipeline falla y los datos llegan a las 10am, se violó el SLA. Los SLAs deben ser acordados explícitamente con el negocio.</span></div>
+    <div class="gi"><span class="gterm">Metadatos</span><span class="gdef">Datos sobre los datos. El nombre de una tabla, cuándo se actualizó por última vez, quién es el dueño, qué significa cada columna. El catálogo de datos es un repositorio de metadatos.</span></div>
+    <div class="gi"><span class="gterm">CDC</span><span class="gdef">Change Data Capture. Técnica que captura solo los cambios en una base de datos (inserts, updates, deletes) en lugar de copiar todo. Más eficiente para ingestión incremental en tiempo real.</span></div>
+    <div class="gi"><span class="gterm">Slowly Changing Dimension</span><span class="gdef">Una dimensión que cambia con el tiempo pero lentamente. Ej: el gerente de una región cambia una vez al año. ¿Los reportes históricos deben mostrar el gerente actual o el que había en ese momento? Hay tres tipos (SCD1, SCD2, SCD3) con distintas estrategias.</span></div>
+    <div class="gi"><span class="gterm">Bus factor</span><span class="gdef">Cuántas personas del equipo deben ser "atropelladas por un bus" para que el conocimiento sobre un sistema se pierda. Si el pipeline crítico solo lo entiende una persona, el bus factor es 1 — riesgo alto.</span></div>
+    <div class="gi"><span class="gterm">Data Mesh</span><span class="gdef">Arquitectura donde cada dominio de negocio es dueño y responsable de sus propios datos, en lugar de tener un equipo central. Escala bien en empresas grandes pero requiere madurez organizacional para funcionar.</span></div>
+    <div class="gi"><span class="gterm">Fabric / OneLake</span><span class="gdef">La plataforma unificada de Microsoft para datos y analytics. Integra Data Engineering, Data Warehouse, Real-time Analytics, Power BI y Data Science en un solo SaaS. Es la dirección estratégica de Microsoft para reemplazar servicios separados de Azure.</span></div>
+  </div>
+</div>
+
+<!-- ══════ QUIZ ══════ -->
+<div class="sec" id="quiz">
+  <h2>Quiz — Proyectos de datos</h2>
+  <div class="subtitle">8 preguntas de situaciones reales</div>
+
+  <div class="qcard" id="q1">
+    <div class="qnum">PREGUNTA 01 / 08</div>
+    <div class="qtxt">Finanzas y Comercial presentan en el mismo comité números distintos de "ventas del mes". ¿Cuál es la causa más probable y qué acción tomar?</div>
+    <div class="qopts">
+      <button onclick="qa('q1',this,false)">El pipeline de datos tiene un bug — hay que corregir el código</button>
+      <button onclick="qa('q1',this,true)">Cada área tiene una definición distinta de "ventas" — hay que acordar una definición oficial y publicarla en un glosario de negocio</button>
+      <button onclick="qa('q1',this,false)">Power BI está calculando mal — hay que revisar las medidas DAX</button>
+    </div>
+    <div class="qexp" id="q1-exp">La "guerra de cifras" es casi siempre un problema de definiciones, no de código. Finanzas puede incluir impuestos, Comercial no. O uno incluye devoluciones y el otro no. La solución técnica (un único modelo semántico) solo funciona si primero se resuelve el acuerdo de negocio sobre qué medir.</div>
+  </div>
+
+  <div class="qcard" id="q2">
+    <div class="qnum">PREGUNTA 02 / 08</div>
+    <div class="qtxt">El Power BI developer dice que el reporte "está lento porque los datos son muchos". ¿Qué deberías investigar primero?</div>
+    <div class="qopts">
+      <button onclick="qa('q2',this,false)">Comprar una licencia Power BI Premium más cara</button>
+      <button onclick="qa('q2',this,true)">Revisar el modelo de datos en Power BI: relaciones mal configuradas, muchos a muchos, o transformaciones complejas en Power Query que deberían estar en la capa de datos</button>
+      <button onclick="qa('q2',this,false)">Reducir el número de gráficos en el reporte</button>
+    </div>
+    <div class="qexp" id="q2-exp">Un reporte lento casi siempre tiene un modelo mal diseñado, no un problema de volumen. Los síntomas típicos: relaciones many-to-many, columnas calculadas en lugar de medidas, transformaciones pesadas en Power Query, o la ausencia de aggregations. Antes de gastar en hardware, audita el modelo.</div>
+  </div>
+
+  <div class="qcard" id="q3">
+    <div class="qnum">PREGUNTA 03 / 08</div>
+    <div class="qtxt">El equipo propone arquitectura streaming en tiempo real para el dashboard de ventas diarias. ¿Cuál es la pregunta correcta?</div>
+    <div class="qopts">
+      <button onclick="qa('q3',this,false)">¿Qué tecnología de streaming es más moderna?</button>
+      <button onclick="qa('q3',this,false)">¿El equipo tiene experiencia en Kafka?</button>
+      <button onclick="qa('q3',this,true)">¿Qué decisión de negocio no puede esperar una actualización cada hora? Si el usuario del dashboard revisa los datos una vez al día, el streaming es complejidad innecesaria</button>
+    </div>
+    <div class="qexp" id="q3-exp">Streaming resuelve problemas reales cuando la latencia importa al negocio (detección de fraude, alertas operacionales, inventario en tiempo real). Para un reporte de ventas que se revisa en reuniones diarias, batch cada hora es más que suficiente, más simple, y mucho más barato de operar.</div>
+  </div>
+
+  <div class="qcard" id="q4">
+    <div class="qnum">PREGUNTA 04 / 08</div>
+    <div class="qtxt">El Data Engineer entrega los datos "listos para Power BI" pero el BI developer pasa semanas haciendo transformaciones en Power Query. ¿Qué hay que resolver?</div>
+    <div class="qopts">
+      <button onclick="qa('q4',this,false)">Capacitar al BI developer en Power Query avanzado</button>
+      <button onclick="qa('q4',this,true)">Hay una brecha de arquitectura: los datos no llegan en el estado que el BI necesita. El DE debe entregar una capa Gold/Data Mart que el BI consuma directamente con mínimas transformaciones</button>
+      <button onclick="qa('q4',this,false)">Reemplazar Power Query por DAX para las transformaciones</button>
+    </div>
+    <div class="qexp" id="q4-exp">Power BI no es una herramienta de transformación de datos — es una herramienta de presentación. Cuando el BI developer transforma datos en Power Query, el trabajo del DE no está terminado. La solución es acordar un contrato claro: el DE entrega la capa Gold con los datos en el esquema que el BI necesita.</div>
+  </div>
+
+  <div class="qcard" id="q5">
+    <div class="qnum">PREGUNTA 05 / 08</div>
+    <div class="qtxt">El proyecto lleva 3 meses. El DE dice que los datos de la fuente ERP son un desastre y que necesita más tiempo. ¿Qué haces como manager?</div>
+    <div class="qopts">
+      <button onclick="qa('q5',this,false)">Presionar para que termine en el plazo original — el problema de calidad se resuelve después</button>
+      <button onclick="qa('q5',this,true)">Investigar el problema de calidad con el equipo, escalar al dueño del ERP para resolverlo en la fuente, y revisar el alcance del proyecto con los stakeholders considerando el impacto</button>
+      <button onclick="qa('q5',this,false)">Cambiar el DE por uno más experimentado</button>
+    </div>
+    <div class="qexp" id="q5-exp">Los problemas de calidad en la fuente no se "resuelven después" — se heredan y magnifican. Construir sobre datos malos genera reportes incorrectos que dañan la confianza en todo el proyecto. El DE tiene razón en alertar. La solución correcta es escalar al dueño del sistema fuente para que limpie en origen.</div>
+  </div>
+
+  <div class="qcard" id="q6">
+    <div class="qnum">PREGUNTA 06 / 08</div>
+    <div class="qtxt">¿Cuál es la diferencia entre un Data Analyst y un Power BI Developer?</div>
+    <div class="qopts">
+      <button onclick="qa('q6',this,false)">Son el mismo rol, solo diferente nombre según la empresa</button>
+      <button onclick="qa('q6',this,true)">El DA responde preguntas de negocio con datos y tiene perfil más analítico; el BI Dev construye la infraestructura de presentación (modelo semántico, DAX, reportes) y tiene perfil más técnico-constructivo</button>
+      <button onclick="qa('q6',this,false)">El DA usa Excel, el BI Dev usa Power BI</button>
+    </div>
+    <div class="qexp" id="q6-exp">Un DA puede construir reportes, pero su valor principal es el análisis e interpretación. Un BI Dev puede hacer análisis, pero su valor principal es construir la infraestructura que permite que otros analicen. En equipos pequeños una persona hace ambos. En equipos grandes están separados.</div>
+  </div>
+
+  <div class="qcard" id="q7">
+    <div class="qnum">PREGUNTA 07 / 08</div>
+    <div class="qtxt">El equipo quiere implementar un "data catalog". El CTO pregunta cuánto ROI tiene. ¿Cómo lo argumentas?</div>
+    <div class="qopts">
+      <button onclick="qa('q7',this,false)">Es difícil de cuantificar, mejor no implementarlo si el CTO duda</button>
+      <button onclick="qa('q7',this,true)">Tiempo ahorrado buscando datos (¿cuántas horas/semana gasta el equipo buscando qué tabla usar?), reducción de errores por usar datos incorrectos, y velocidad de onboarding de nuevos analistas</button>
+      <button onclick="qa('q7',this,false)">Es un requerimiento de compliance que hay que hacer igual</button>
+    </div>
+    <div class="qexp" id="q7-exp">El ROI del catálogo es real pero indirecto. Un analista que tarda 2 horas encontrando la tabla correcta cuando podría tardar 5 minutos, multiplicado por el equipo, es semanas perdidas al año. El catálogo también reduce el bus factor y acelera el onboarding. Mide el tiempo actual de "buscar datos" como baseline.</div>
+  </div>
+
+  <div class="qcard" id="q8">
+    <div class="qnum">PREGUNTA 08 / 08</div>
+    <div class="qtxt">El arquitecto propone migrar de Data Warehouse tradicional a Lakehouse con Microsoft Fabric. ¿Qué aspecto debes entender antes de aprobar?</div>
+    <div class="qopts">
+      <button onclick="qa('q8',this,false)">Si Fabric es más popular que Databricks en el mercado</button>
+      <button onclick="qa('q8',this,true)">El costo de migración vs el valor que agrega, cuánto tiempo de downtime implica, si el equipo tiene las habilidades para operar el nuevo stack, y si los casos de uso actuales realmente lo justifican</button>
+      <button onclick="qa('q8',this,false)">Si la interfaz de Fabric es más bonita que la del DW actual</button>
+    </div>
+    <div class="qexp" id="q8-exp">Las migraciones de plataforma de datos son proyectos grandes con riesgo real. Antes de aprobar: ¿qué problema resuelve que el stack actual no puede resolver? ¿Cuál es el costo total (licencias + migración + capacitación + tiempo de equipo)? ¿Hay una etapa de coexistencia o es big bang? Un lakehouse es excelente, pero solo si el equipo puede operarlo.</div>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+    document.querySelectorAll('nav button').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('onclick').includes("'" + id + "'"));
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleFlow(el) { el.classList.toggle('open'); }
+
+  function qa(qId, btn, correct) {
+    const card = document.getElementById(qId);
+    card.querySelectorAll('button').forEach(b => {
+      b.disabled = true;
+      if (b !== btn) b.classList.add('dim');
+    });
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    document.getElementById(qId + '-exp').style.display = 'block';
+  }
+</script>
+</body>
+</html>

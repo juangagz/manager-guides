@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Development Lifecycle — Guía para Managers</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #080b14;
+    --surface: #0d1220;
+    --surface2: #121929;
+    --border: #1e2d45;
+    --cyan: #22d3ee;
+    --violet: #a78bfa;
+    --amber: #fbbf24;
+    --rose: #fb7185;
+    --green: #4ade80;
+    --text: #e2e8f0;
+    --muted: #4b6280;
+    --subtle: #8faabf;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 2.5rem 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(34,211,238,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  header h1 {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #e2e8f0 40%, var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p { color: var(--subtle); font-size: 0.88rem; margin-top: 0.5rem; }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.9rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(8,11,20,0.95);
+    backdrop-filter: blur(8px);
+    z-index: 20;
+  }
+
+  nav button {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  nav button:hover { border-color: var(--cyan); color: var(--cyan); }
+  nav button.active { background: var(--cyan); color: #080b14; border-color: var(--cyan); font-weight: 700; }
+
+  /* ── MAIN ── */
+  main { padding: 1.8rem 1.5rem; max-width: 820px; }
+
+  .sec { display: none; }
+  .sec.visible { display: block; }
+
+  /* ── TYPOGRAPHY ── */
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--cyan);
+    margin-bottom: 0.25rem;
+  }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 1.4rem;
+  }
+
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.6rem 0 0.4rem;
+  }
+
+  p { font-size: 0.88rem; margin-bottom: 0.75rem; color: var(--subtle); }
+  p strong { color: var(--text); font-weight: 500; }
+
+  /* ── PIPELINE FLOW ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1.2rem 0;
+  }
+
+  .pipe-step {
+    display: flex;
+    gap: 0;
+    cursor: pointer;
+  }
+
+  .pipe-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 2.8rem;
+    min-width: 2.8rem;
+  }
+
+  .pipe-dot {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    background: var(--surface);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .pipe-step.open .pipe-dot,
+  .pipe-step:hover .pipe-dot {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(34,211,238,0.08);
+  }
+
+  .pipe-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin: 0.15rem 0;
+    min-height: 0.8rem;
+  }
+
+  .pipe-step:last-child .pipe-line { display: none; }
+
+  .pipe-right {
+    flex: 1;
+    padding: 0 0 1.2rem 0.8rem;
+  }
+
+  .pipe-title {
+    font-size: 0.93rem;
+    font-weight: 500;
+    color: var(--text);
+    padding-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pipe-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+  }
+
+  .tag-data { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+  .tag-model { background: rgba(167,139,250,0.12); color: var(--violet); border: 1px solid rgba(167,139,250,0.2); }
+  .tag-ops { background: rgba(34,211,238,0.1); color: var(--cyan); border: 1px solid rgba(34,211,238,0.2); }
+  .tag-gen { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+
+  .pipe-body {
+    display: none;
+    margin-top: 0.6rem;
+    padding: 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 0.84rem;
+    color: var(--subtle);
+    line-height: 1.6;
+  }
+
+  .pipe-step.open .pipe-body { display: block; }
+
+  .pipe-body .what, .pipe-body .manager-q {
+    margin-bottom: 0.5rem;
+  }
+
+  .pipe-body .manager-q {
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+    color: var(--amber);
+    font-size: 0.8rem;
+  }
+
+  .pipe-body .manager-q strong {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    display: block;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.9rem;
+    transition: border-color 0.15s;
+  }
+
+  .card:hover { border-color: var(--violet); }
+
+  .card .ctag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--violet);
+  }
+
+  .card h4 { font-size: 0.9rem; font-weight: 500; margin-bottom: 0.35rem; color: var(--text); }
+  .card p { font-size: 0.8rem; margin: 0; color: var(--muted); }
+
+  /* ── DIFF / COMPARE ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+
+  .cmp-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .cmp-head {
+    padding: 0.45rem 0.8rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .cmp-col.a .cmp-head { background: rgba(251,191,36,0.1); color: var(--amber); }
+  .cmp-col.b .cmp-head { background: rgba(167,139,250,0.1); color: var(--violet); }
+  .cmp-col.c .cmp-head { background: rgba(34,211,238,0.08); color: var(--cyan); }
+  .cmp-col.d .cmp-head { background: rgba(74,222,128,0.08); color: var(--green); }
+
+  .cmp-col ul { padding: 0.8rem 0.8rem 0.8rem 1.3rem; list-style: disc; }
+  .cmp-col ul li { font-size: 0.8rem; color: var(--subtle); margin-bottom: 0.3rem; line-height: 1.4; }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x: auto; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th {
+    text-align: left;
+    padding: 0.5rem 0.7rem;
+    background: var(--surface2);
+    color: var(--cyan);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+  td { padding: 0.5rem 0.7rem; border-top: 1px solid var(--border); color: var(--subtle); vertical-align: top; }
+  td strong { color: var(--text); font-weight: 500; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 2px solid var(--amber);
+    background: rgba(251,191,36,0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 0 3px 3px 0;
+    margin: 1rem 0;
+    font-size: 0.84rem;
+    color: var(--subtle);
+  }
+
+  .callout .clabel {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .callout.violet { border-left-color: var(--violet); background: rgba(167,139,250,0.05); }
+  .callout.violet .clabel { color: var(--violet); }
+  .callout.green { border-left-color: var(--green); background: rgba(74,222,128,0.05); }
+  .callout.green .clabel { color: var(--green); }
+  .callout.rose { border-left-color: var(--rose); background: rgba(251,113,133,0.05); }
+  .callout.rose .clabel { color: var(--rose); }
+
+  /* ── QUIZ ── */
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .quiz-card .qtext { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 0.7rem; }
+
+  .qopts { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .qopts button {
+    text-align: left;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.5rem 0.8rem;
+    color: var(--subtle);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .qopts button:hover:not(:disabled) { border-color: var(--violet); color: var(--violet); }
+  .qopts button.correct { border-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green); }
+  .qopts button.wrong { border-color: var(--rose); background: rgba(251,113,133,0.08); color: var(--rose); }
+  .qopts button.reveal { opacity: 0.4; }
+
+  .qexp {
+    display: none;
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    border-left: 2px solid var(--violet);
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── GLOSSARY ── */
+  .glossary { margin: 1rem 0; }
+  .gitem {
+    border-top: 1px solid var(--border);
+    padding: 0.7rem 0;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 0.8rem;
+  }
+
+  .gterm {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--cyan);
+    padding-top: 0.1rem;
+    line-height: 1.4;
+  }
+
+  .gdef { font-size: 0.83rem; color: var(--subtle); }
+  .gdef strong { color: var(--text); font-weight: 500; }
+
+  @media (max-width: 520px) {
+    .compare { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+    .gitem { grid-template-columns: 1fr; gap: 0.2rem; }
+    .gterm { font-size: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Manager's Field Guide · AI Edition</div>
+  <h1>AI & ML Development<br>Lifecycle</h1>
+  <p>Del dato crudo al modelo en producción — más GenAI, LLMs y agentes</p>
+</header>
+
+<nav>
+  <button class="active" onclick="show('ciclo')">Ciclo ML</button>
+  <button onclick="show('datos')">Datos & Pipelines</button>
+  <button onclick="show('modelos')">Modelos & Evaluación</button>
+  <button onclick="show('mlops')">MLOps & Producción</button>
+  <button onclick="show('genai')">GenAI & LLMs</button>
+  <button onclick="show('roles')">Roles AI</button>
+  <button onclick="show('glosario')">Glosario</button>
+  <button onclick="show('quiz')">Quiz</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════
+     CICLO ML
+══════════════════════════════════ -->
+<div class="sec visible" id="ciclo">
+  <h2>El ciclo de vida de un proyecto de AI/ML</h2>
+  <div class="subtitle">machine learning lifecycle — cómo se construye de verdad</div>
+
+  <p>A diferencia del software tradicional, en AI el ciclo no es lineal: los equipos <strong>vuelven atrás constantemente</strong> — si el modelo no funciona, puede ser problema de los datos, del diseño, o del planteamiento del problema.</p>
+
+  <p style="font-size:0.8rem; color: var(--muted);">Haz clic en cada fase para expandir.</p>
+
+  <div class="pipeline">
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">01</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Definición del problema <span class="pipe-tag tag-data">Negocio</span></div>
+        <div class="pipe-body">
+          <div class="what">¿Qué decisión o tarea se quiere automatizar o mejorar? Aquí se define si el problema es de <strong>clasificación</strong> (¿spam o no?), <strong>regresión</strong> (¿cuánto vale?), <strong>generación</strong> (¿qué texto produce?), u otro tipo. Un problema mal definido produce un modelo que nadie usa, aunque funcione perfectamente.</div>
+          <div class="manager-q"><strong>📌 Pregunta que debes hacer</strong>"¿Cómo medimos el éxito de este modelo en términos de negocio — no solo de métricas técnicas?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">02</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Recolección y exploración de datos <span class="pipe-tag tag-data">Datos</span></div>
+        <div class="pipe-body">
+          <div class="what">Se recopilan los datos necesarios (bases de datos, APIs, web scraping, sensores, etc.) y se hace un <strong>EDA (Exploratory Data Analysis)</strong>: entender la distribución, buscar valores faltantes, detectar outliers, entender qué hay disponible. Los datos raramente están listos para usar.</div>
+          <div class="manager-q"><strong>📌 Pregunta que debes hacer</strong>"¿Tenemos suficientes datos? ¿Son representativos del problema real? ¿Hay sesgos que podamos heredar?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">03</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Preparación y Feature Engineering <span class="pipe-tag tag-data">Datos</span></div>
+        <div class="pipe-body">
+          <div class="what">La fase más larga (60–80% del tiempo en proyectos reales). Incluye limpieza de datos, normalización, transformación, y <strong>feature engineering</strong>: crear las variables (features) que el modelo usará para aprender. Una variable bien construida puede ser más valiosa que un modelo más sofisticado.</div>
+          <div class="manager-q"><strong>📌 Señal de alerta</strong>Si el equipo quiere ir directo al modelo sin pasar tiempo en datos, hay riesgo. "Garbage in, garbage out" — si los datos son malos, el modelo será malo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">04</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Entrenamiento del modelo <span class="pipe-tag tag-model">Modelo</span></div>
+        <div class="pipe-body">
+          <div class="what">Se selecciona un algoritmo (regresión, árbol de decisión, red neuronal, etc.) y se entrena con los datos preparados. El modelo aprende patrones ajustando parámetros internos. Se prueban múltiples <strong>experimentos</strong> con distintos algoritmos e <strong>hiperparámetros</strong> (configuraciones del modelo) para encontrar la mejor combinación.</div>
+          <div class="manager-q"><strong>📌 Vocabulario clave</strong><strong>Training set:</strong> datos para entrenar. <strong>Validation set:</strong> datos para ajustar durante el proceso. <strong>Test set:</strong> datos que el modelo nunca vio, para evaluación final. Este split es crítico para que los resultados sean honestos.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">05</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Evaluación del modelo <span class="pipe-tag tag-model">Modelo</span></div>
+        <div class="pipe-body">
+          <div class="what">Se mide qué tan bien funciona el modelo con métricas específicas del problema. <strong>Accuracy</strong> (exactitud) no siempre es la métrica correcta — en fraude bancario, detectar el 1% de casos falsos positivos puede ser más importante que el accuracy general. La evaluación también incluye buscar <strong>bias</strong> (sesgos) en las predicciones.</div>
+          <div class="manager-q"><strong>📌 Pregunta que debes hacer</strong>"¿Qué métrica estamos optimizando y por qué? ¿Coincide con el objetivo de negocio que definimos al inicio?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">06</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Deployment del modelo <span class="pipe-tag tag-ops">MLOps</span></div>
+        <div class="pipe-body">
+          <div class="what">El modelo se integra en un sistema de producción — puede ser una API que otros sistemas llaman, un proceso batch que corre noche, o un componente embebido en una app. A diferencia del software tradicional, un modelo en producción <strong>puede degradarse solo con el tiempo</strong> (model drift) sin que nadie cambie el código.</div>
+          <div class="manager-q"><strong>📌 Señal de alerta</strong>Un modelo que vive solo en un notebook de Jupyter no está "en producción". Pregunta: ¿cómo llega la predicción al usuario o al sistema que la necesita?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-step" onclick="togglePipe(this)">
+      <div class="pipe-left"><div class="pipe-dot">07</div><div class="pipe-line"></div></div>
+      <div class="pipe-right">
+        <div class="pipe-title">Monitoreo y Reentrenamiento <span class="pipe-tag tag-ops">MLOps</span></div>
+        <div class="pipe-body">
+          <div class="what">El trabajo no termina con el deploy. Los modelos se monitorizan para detectar <strong>data drift</strong> (los datos de entrada cambian) o <strong>concept drift</strong> (la relación entre variables y resultado cambia). Cuando el desempeño baja, el modelo debe ser reentrenado con datos más recientes.</div>
+          <div class="manager-q"><strong>📌 Pregunta que debes hacer</strong>"¿Con qué frecuencia reentrenamos? ¿Quién es el dueño de monitorear que el modelo sigue funcionando bien en producción?"</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     DATOS & PIPELINES
+══════════════════════════════════ -->
+<div class="sec" id="datos">
+  <h2>Datos y Pipelines</h2>
+  <div class="subtitle">la base de todo proyecto de ai — lo que nadie ve pero todo depende</div>
+
+  <h3>¿Qué es un data pipeline?</h3>
+  <p>Una secuencia automatizada de pasos que mueve, transforma y carga datos de una fuente a un destino. En AI, el pipeline alimenta al modelo. Si el pipeline falla, el modelo falla.</p>
+
+  <div class="compare">
+    <div class="cmp-col a">
+      <div class="cmp-head">ETL (Extract · Transform · Load)</div>
+      <ul>
+        <li>Se transforma antes de cargar al destino</li>
+        <li>Tradicional, usado en Data Warehouses</li>
+        <li>Los datos llegan limpios y estructurados</li>
+        <li>Herramientas: SSIS, Informatica, ADF</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-head">ELT (Extract · Load · Transform)</div>
+      <ul>
+        <li>Se carga crudo y se transforma después</li>
+        <li>Moderno, usado en Data Lakes / Lakehouses</li>
+        <li>Más flexible para AI y exploración</li>
+        <li>Herramientas: dbt, Spark, Databricks</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Tipos de datos en AI</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Tipo</th><th>Ejemplo</th><th>Uso en AI</th></tr>
+      <tr><td><strong>Estructurado</strong></td><td>Tablas SQL, CSV, Excel</td><td>Modelos de predicción clásicos (XGBoost, regresión)</td></tr>
+      <tr><td><strong>No estructurado</strong></td><td>Texto, imágenes, audio, video</td><td>NLP, visión por computadora, LLMs</td></tr>
+      <tr><td><strong>Semi-estructurado</strong></td><td>JSON, XML, logs</td><td>Pipelines de eventos, análisis de APIs</td></tr>
+      <tr><td><strong>Time series</strong></td><td>Métricas de sensores, precios</td><td>Forecasting, detección de anomalías</td></tr>
+    </table>
+  </div>
+
+  <h3>Calidad de datos — el tema que más retrasa proyectos</h3>
+  <div class="card-grid">
+    <div class="card">
+      <span class="ctag">Problema</span>
+      <h4>Datos faltantes</h4>
+      <p>Valores nulos o incompletos. El equipo debe decidir si imputar (rellenar), eliminar, o diseñar el modelo para tolerarlos.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Problema</span>
+      <h4>Datos desbalanceados</h4>
+      <p>Cuando una clase es muy rara (ej: fraude = 0.1% de transacciones). El modelo puede predecir "no fraude" siempre y tener 99.9% de accuracy sin detectar nada.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Problema</span>
+      <h4>Data leakage</h4>
+      <p>Información del futuro que "filtra" al training. El modelo parece perfecto en pruebas pero falla en producción. Error frecuente y costoso.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Práctica</span>
+      <h4>Data versioning</h4>
+      <p>Igual que el código tiene versiones (Git), los datasets también deben versionarse. Si no sabes con qué datos se entrenó un modelo, no puedes reproducirlo ni auditarlo.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="clabel">Para el manager</span>
+    "¿Tenemos un catálogo de datos (data catalog)?" Si no saben qué datos tienen, dónde están, y quién es el dueño de cada fuente, el proyecto de AI tardará más de lo esperado.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODELOS & EVALUACIÓN
+══════════════════════════════════ -->
+<div class="sec" id="modelos">
+  <h2>Modelos y Evaluación</h2>
+  <div class="subtitle">qué es un modelo, cómo se mide, y cuándo confiar en él</div>
+
+  <h3>¿Qué es un modelo de ML?</h3>
+  <p>Un modelo es una función matemática que aprendió patrones de datos para hacer predicciones o tomar decisiones. No es magia: es estadística y álgebra aplicada. Cuando el equipo dice "el modelo predice", significa "esta función, dados estos inputs, devuelve este output".</p>
+
+  <h3>Tipos de aprendizaje</h3>
+  <div class="compare">
+    <div class="cmp-col a">
+      <div class="cmp-head">Supervisado</div>
+      <ul>
+        <li>Se entrena con datos etiquetados (inputs + respuesta correcta)</li>
+        <li>Aprende a predecir la etiqueta para datos nuevos</li>
+        <li>Ejemplos: clasificar emails, predecir precios, detectar fraude</li>
+        <li>Requiere mucho tiempo de etiquetado humano</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-head">No supervisado</div>
+      <ul>
+        <li>Se entrena con datos sin etiquetas</li>
+        <li>Encuentra patrones y agrupaciones por sí solo</li>
+        <li>Ejemplos: segmentación de clientes, detección de anomalías</li>
+        <li>Más difícil de evaluar — no hay "respuesta correcta"</li>
+      </ul>
+    </div>
+    <div class="cmp-col c">
+      <div class="cmp-head">Reinforcement Learning</div>
+      <ul>
+        <li>Un agente aprende por ensayo y error con recompensas</li>
+        <li>No necesita datos etiquetados, aprende interactuando</li>
+        <li>Base de sistemas como AlphaGo y ChatGPT (RLHF)</li>
+        <li>Complejo de implementar, pero poderoso</li>
+      </ul>
+    </div>
+    <div class="cmp-col d">
+      <div class="cmp-head">Transfer Learning</div>
+      <ul>
+        <li>Tomar un modelo ya entrenado y adaptarlo a un problema nuevo</li>
+        <li>Ahorra enormes cantidades de datos y tiempo</li>
+        <li>Base del fine-tuning de LLMs</li>
+        <li>Lo más común hoy en proyectos con modelos de lenguaje</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Métricas de evaluación — el vocabulario que necesitas</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Métrica</th><th>Qué mide</th><th>Cuándo importa más</th></tr>
+      <tr><td><strong>Accuracy</strong></td><td>% de predicciones correctas en total</td><td>Cuando las clases están balanceadas</td></tr>
+      <tr><td><strong>Precision</strong></td><td>De lo que predijo positivo, ¿cuánto era realmente positivo?</td><td>Cuando los falsos positivos son costosos (ej: spam que bloquea emails reales)</td></tr>
+      <tr><td><strong>Recall</strong></td><td>De todos los positivos reales, ¿cuántos detectó?</td><td>Cuando los falsos negativos son costosos (ej: no detectar una enfermedad)</td></tr>
+      <tr><td><strong>F1 Score</strong></td><td>Promedio ponderado de Precision y Recall</td><td>Cuando hay desbalance y ambos errores importan</td></tr>
+      <tr><td><strong>AUC-ROC</strong></td><td>Qué tan bien separa el modelo las clases</td><td>Clasificación binaria con umbral ajustable</td></tr>
+      <tr><td><strong>MAE / RMSE</strong></td><td>Error promedio en predicciones numéricas</td><td>Forecasting, predicción de precios, regresión</td></tr>
+      <tr><td><strong>Latencia</strong></td><td>Cuánto tarda el modelo en responder</td><td>Siempre en sistemas en tiempo real</td></tr>
+    </table>
+  </div>
+
+  <h3>Overfitting vs Underfitting</h3>
+  <div class="compare">
+    <div class="cmp-col a">
+      <div class="cmp-head">Overfitting — sobreajuste</div>
+      <ul>
+        <li>El modelo memorizó los datos de entrenamiento</li>
+        <li>Funciona muy bien en pruebas, muy mal en producción</li>
+        <li>Como estudiar solo las respuestas del examen anterior</li>
+        <li>Solución: más datos, regularización, simplificar el modelo</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-head">Underfitting — subajuste</div>
+      <ul>
+        <li>El modelo es demasiado simple para capturar los patrones</li>
+        <li>Funciona mal en training y en producción</li>
+        <li>Como intentar predecir el precio de casas solo con el color</li>
+        <li>Solución: modelo más complejo, más features, más datos</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout rose">
+    <span class="clabel">Alerta de manager</span>
+    Si el equipo reporta métricas solo del <strong>training set</strong> (datos con los que entrenó), desconfía. La única evaluación que importa es sobre datos que el modelo nunca vio.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MLOPS
+══════════════════════════════════ -->
+<div class="sec" id="mlops">
+  <h2>MLOps y Producción</h2>
+  <div class="subtitle">machine learning operations — cómo los modelos llegan y sobreviven en producción</div>
+
+  <p><strong>MLOps</strong> es la disciplina que une ML con DevOps. Su objetivo: llevar modelos a producción de forma confiable, reproducible y monitoreable. Sin MLOps, los proyectos de AI quedan atrapados en notebooks que nadie más puede usar.</p>
+
+  <div class="compare">
+    <div class="cmp-col a">
+      <div class="cmp-head">Sin MLOps (caos)</div>
+      <ul>
+        <li>"El modelo funciona en mi máquina"</li>
+        <li>Nadie sabe con qué datos se entrenó el modelo en producción</li>
+        <li>Reproducir un experimento tarda días</li>
+        <li>Cuando el modelo falla, nadie sabe por qué</li>
+        <li>El data scientist es el único que puede actualizar el modelo</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-head">Con MLOps (control)</div>
+      <ul>
+        <li>Pipeline automatizado: datos → entrenamiento → deploy</li>
+        <li>Experimentos registrados (métricas, parámetros, datos)</li>
+        <li>Cualquier modelo puede ser reproducido o rollback</li>
+        <li>Monitoreo automático de desempeño</li>
+        <li>Reentrenamiento automatizado al detectar drift</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Conceptos clave de MLOps</h3>
+  <div class="card-grid">
+    <div class="card">
+      <span class="ctag">Registro</span>
+      <h4>Model Registry</h4>
+      <p>Un repositorio centralizado donde se guardan los modelos entrenados con sus métricas, versiones, y metadatos. Como un GitHub pero para modelos. Herramientas: MLflow, W&B, Azure ML.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Seguimiento</span>
+      <h4>Experiment Tracking</h4>
+      <p>Registrar automáticamente cada experimento: qué hiperparámetros se usaron, qué datos, qué métricas resultaron. Sin esto, el equipo repite experimentos sin saberlo.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Despliegue</span>
+      <h4>Model Serving</h4>
+      <p>Exponer el modelo como una API para que otros sistemas lo consuman. El modelo recibe inputs en tiempo real y devuelve una predicción. Herramientas: FastAPI, TorchServe, Triton.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Vigilancia</span>
+      <h4>Model Monitoring</h4>
+      <p>Detectar cuándo el modelo empieza a funcionar peor. Puede ser por data drift (los inputs cambian) o concept drift (la relación entre variables cambia en el mundo real).</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Empaquetado</span>
+      <h4>Feature Store</h4>
+      <p>Repositorio centralizado de features calculadas y reutilizables. Evita que cada equipo recalcule las mismas variables. Reduce inconsistencias entre entrenamiento y producción.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Automatización</span>
+      <h4>CI/CD for ML</h4>
+      <p>Pipelines que automatizan reentrenamiento, validación y re-deploy al detectar drift o nuevos datos. El equivalente del CI/CD de software, pero para modelos.</p>
+    </div>
+  </div>
+
+  <div class="callout violet">
+    <span class="clabel">Madurez de MLOps</span>
+    <strong>Nivel 0:</strong> Todo manual, notebooks en laptops personales.<br>
+    <strong>Nivel 1:</strong> Pipelines de entrenamiento automatizados.<br>
+    <strong>Nivel 2:</strong> CI/CD completo — desde datos hasta producción, sin intervención humana.<br><br>
+    La mayoría de las empresas está en nivel 0–1. Llegar a nivel 2 es un proyecto en sí mismo.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     GENAI & LLMs
+══════════════════════════════════ -->
+<div class="sec" id="genai">
+  <h2>GenAI, LLMs y Agentes</h2>
+  <div class="subtitle">el mundo de la ia generativa — lo que cambió todo desde 2022</div>
+
+  <p>Los <strong>Large Language Models (LLMs)</strong> son modelos entrenados con enormes cantidades de texto para generar, resumir, traducir, razonar, y responder preguntas. A diferencia del ML clásico, no predices un número — generas contenido. GPT-4, Claude, Gemini, Llama son ejemplos.</p>
+
+  <h3>Formas de usar un LLM en un producto</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Técnica</th><th>Qué es</th><th>Cuándo usarla</th><th>Costo relativo</th></tr>
+      <tr>
+        <td><strong>Prompting</strong></td>
+        <td>Usar el LLM directamente con instrucciones bien escritas</td>
+        <td>Tareas generales, prototipado rápido</td>
+        <td>Bajo</td>
+      </tr>
+      <tr>
+        <td><strong>Few-shot</strong></td>
+        <td>Dar ejemplos dentro del prompt para guiar el formato o tono</td>
+        <td>Tareas con formato específico o dominio concreto</td>
+        <td>Bajo</td>
+      </tr>
+      <tr>
+        <td><strong>RAG</strong></td>
+        <td>Recuperar documentos relevantes y pasarlos al LLM como contexto</td>
+        <td>Cuando necesitas que el modelo use información propia de la empresa</td>
+        <td>Medio</td>
+      </tr>
+      <tr>
+        <td><strong>Fine-tuning</strong></td>
+        <td>Reentrenar el LLM con datos propios para especializarlo</td>
+        <td>Dominio muy específico, tono de marca, idioma técnico</td>
+        <td>Alto</td>
+      </tr>
+      <tr>
+        <td><strong>Agentes (Agents)</strong></td>
+        <td>El LLM usa herramientas externas (APIs, búsqueda, código) para completar tareas</td>
+        <td>Automatización de flujos multi-paso</td>
+        <td>Variable</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>RAG — la arquitectura más usada en empresas</h3>
+  <p><strong>Retrieval-Augmented Generation</strong>: en lugar de pedirle al LLM que "recuerde" información, le pasas los documentos relevantes en cada consulta. Así el modelo responde con tu información, no con lo que aprendió en su entrenamiento original.</p>
+
+  <div class="compare">
+    <div class="cmp-col a">
+      <div class="cmp-head">Cómo funciona RAG</div>
+      <ul>
+        <li>El usuario hace una pregunta</li>
+        <li>Se buscan los documentos más relevantes en una base vectorial</li>
+        <li>Esos documentos se incluyen en el prompt</li>
+        <li>El LLM responde basándose en ese contexto</li>
+        <li>Resultado: respuestas con tus datos, actualizables sin reentrenar</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-head">Componentes técnicos</div>
+      <ul>
+        <li><strong>Embeddings:</strong> representación numérica del texto para búsqueda semántica</li>
+        <li><strong>Vector DB:</strong> base de datos especializada en búsqueda por similitud (Pinecone, Weaviate, pgvector)</li>
+        <li><strong>Chunking:</strong> cómo se dividen los documentos en fragmentos</li>
+        <li><strong>Context window:</strong> cuánto texto puede procesar el LLM a la vez</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Agentes de AI</h3>
+  <p>Un <strong>agente</strong> es un sistema donde el LLM no solo responde, sino que <strong>decide qué acciones tomar</strong> para completar una tarea: buscar en internet, ejecutar código, llamar a una API, escribir en una base de datos. El LLM actúa como el "cerebro" que orquesta herramientas.</p>
+
+  <div class="callout green">
+    <span class="clabel">Ejemplo práctico</span>
+    Un agente de soporte: el usuario reporta un problema → el agente busca en la documentación (RAG) → consulta el estado de la cuenta en el CRM (API tool) → genera una respuesta personalizada → si no puede resolverlo, escala a un humano. Todo sin intervención manual.
+  </div>
+
+  <h3>Evaluación de sistemas GenAI — diferente al ML clásico</h3>
+  <div class="card-grid">
+    <div class="card">
+      <span class="ctag">Métrica</span>
+      <h4>Faithfulness</h4>
+      <p>¿La respuesta se basa en el contexto dado o el modelo "inventa" información? Crítico en RAG.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Métrica</span>
+      <h4>Relevance</h4>
+      <p>¿La respuesta es pertinente a la pregunta? El modelo puede ser fiel y aún así responder algo que no sirve.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Problema</span>
+      <h4>Hallucination</h4>
+      <p>El modelo genera información falsa pero con mucha confianza. El riesgo más crítico en aplicaciones de negocio.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Herramienta</span>
+      <h4>LLM-as-Judge</h4>
+      <p>Usar otro LLM para evaluar las respuestas del primero. Más escalable que evaluación humana, pero introduce sus propios sesgos.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Riesgo</span>
+      <h4>Prompt Injection</h4>
+      <p>Inputs maliciosos que hacen que el modelo ignore sus instrucciones. El equivalente a un SQL injection, pero para LLMs. Relevante en sistemas con agentes.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Práctica</span>
+      <h4>Guardrails</h4>
+      <p>Reglas y filtros que controlan qué puede y no puede generar el LLM. Críticos en apps de cliente final para evitar respuestas inapropiadas o riesgosas.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="clabel">Para el manager</span>
+    Antes de hacer fine-tuning (caro), prueba siempre RAG primero. El 80% de los casos de uso empresarial se resuelve bien con RAG + buen prompting. Fine-tuning solo vale cuando tienes un dominio muy técnico, tono muy específico, o latencia crítica.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ROLES AI
+══════════════════════════════════ -->
+<div class="sec" id="roles">
+  <h2>Roles en un equipo de AI</h2>
+  <div class="subtitle">quién hace qué — y por qué hay tanta confusión con los títulos</div>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="ctag">Datos</span>
+      <h4>Data Engineer</h4>
+      <p>Construye y mantiene los pipelines de datos. Se asegura que los datos lleguen limpios, a tiempo, y en el formato correcto al data scientist. Sin él, no hay datos para entrenar.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Análisis</span>
+      <h4>Data Analyst</h4>
+      <p>Explora datos, construye dashboards, responde preguntas de negocio con datos históricos. No entrena modelos predictivos, pero entiende el negocio profundamente. Herramientas: SQL, Power BI, Tableau.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Modelos</span>
+      <h4>Data Scientist</h4>
+      <p>Diseña, entrena y evalúa modelos de ML. Combina estadística, programación, y entendimiento del negocio. En muchas empresas también hace parte del trabajo del DE y del ML Engineer.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Producción</span>
+      <h4>ML Engineer</h4>
+      <p>Lleva los modelos del data scientist a producción. Escribe código robusto, construye APIs, optimiza latencia. El puente entre ciencia y ingeniería.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Operaciones</span>
+      <h4>MLOps Engineer</h4>
+      <p>Se ocupa de la infraestructura de ML: pipelines automáticos, monitoreo, registros de modelos, CI/CD para ML. En equipos pequeños el ML Engineer asume este rol.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">GenAI</span>
+      <h4>AI/LLM Engineer</h4>
+      <p>Especializado en sistemas con LLMs: diseña arquitecturas RAG, construye agentes, optimiza prompts, integra APIs de modelos. Rol nuevo y en alta demanda.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Diseño</span>
+      <h4>Prompt Engineer</h4>
+      <p>Optimiza cómo se le habla al LLM para obtener mejores resultados. Más relevante en producción que en prototipado. El rol está siendo absorbido por el LLM Engineer.</p>
+    </div>
+    <div class="card">
+      <span class="ctag">Estrategia</span>
+      <h4>AI Product Manager</h4>
+      <p>Define qué construir con AI, prioriza casos de uso, gestiona expectativas entre negocio y equipo técnico. Necesita entender tanto el problema como las limitaciones del modelo.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span class="clabel">La confusión más común</span>
+    En startups, una persona hace todo: DE + DS + MLE. En empresas grandes están separados. Cuando contratas, sé específico: ¿necesitas a alguien que construya pipelines (DE), que entrene modelos (DS), o que los lleve a producción (MLE)? Son habilidades distintas.
+  </div>
+
+  <h3>Data Scientist vs ML Engineer — la distinción práctica</h3>
+  <div class="compare">
+    <div class="cmp-col a">
+      <div class="cmp-head">Data Scientist</div>
+      <ul>
+        <li>Foco: explorar, experimentar, entender</li>
+        <li>Herramienta principal: Jupyter Notebook</li>
+        <li>Habla de accuracy, features, hipótesis</li>
+        <li>Output: un modelo que funciona en un notebook</li>
+        <li>Más formación en estadística y matemáticas</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-head">ML Engineer</div>
+      <ul>
+        <li>Foco: construir, escalar, producción</li>
+        <li>Herramienta principal: código, cloud, APIs</li>
+        <li>Habla de latencia, throughput, reliability</li>
+        <li>Output: un modelo que corre en producción</li>
+        <li>Más formación en ingeniería de software</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     GLOSARIO
+══════════════════════════════════ -->
+<div class="sec" id="glosario">
+  <h2>Glosario de términos AI/ML</h2>
+  <div class="subtitle">lo que escuchas en reuniones y lo que realmente significa</div>
+
+  <div class="glossary">
+    <div class="gitem"><span class="gterm">Feature</span><span class="gdef">Variable de entrada al modelo. Ej: "edad", "monto de la transacción", "hora del día". El modelo aprende a usar estas features para predecir.</span></div>
+    <div class="gitem"><span class="gterm">Label / Target</span><span class="gdef">La variable que el modelo intenta predecir. En clasificación de fraude, el label es "fraude / no fraude".</span></div>
+    <div class="gitem"><span class="gterm">Hiperparámetro</span><span class="gdef">Configuración del modelo que el humano define antes del entrenamiento (ej: número de capas, tasa de aprendizaje). Distinto de los parámetros que el modelo aprende solo.</span></div>
+    <div class="gitem"><span class="gterm">Epoch</span><span class="gdef">Una pasada completa del modelo por todos los datos de entrenamiento. Entrenar por muchas epochs puede llevar a overfitting.</span></div>
+    <div class="gitem"><span class="gterm">Inference / Inferencia</span><span class="gdef">Cuando el modelo ya entrenado recibe un nuevo dato y produce una predicción. Distinto del entrenamiento — en producción solo hacemos inference.</span></div>
+    <div class="gitem"><span class="gterm">Embedding</span><span class="gdef">Representación numérica (vector) de texto, imágenes, u otros datos. Permite comparar similitud entre conceptos. La base de RAG y la búsqueda semántica.</span></div>
+    <div class="gitem"><span class="gterm">Token</span><span class="gdef">La unidad mínima de texto que procesa un LLM. Aproximadamente ¾ de una palabra. Los modelos tienen un límite de tokens por consulta (context window).</span></div>
+    <div class="gitem"><span class="gterm">Context Window</span><span class="gdef">Cuánto texto puede "ver" el LLM a la vez. Medido en tokens. GPT-4 Turbo: 128K tokens. Claude 3: hasta 200K. Determina cuántos documentos puedes meter en RAG.</span></div>
+    <div class="gitem"><span class="gterm">Temperature</span><span class="gdef">Parámetro que controla qué tan "creativo" o "determinista" es el LLM. Temp = 0: siempre la misma respuesta. Temp = 1: más variedad. Para producción suele usarse baja.</span></div>
+    <div class="gitem"><span class="gterm">Hallucination</span><span class="gdef">El LLM genera información falsa pero presentada con confianza. No "sabe" que miente. El riesgo principal en aplicaciones empresariales.</span></div>
+    <div class="gitem"><span class="gterm">Fine-tuning</span><span class="gdef">Continuar el entrenamiento de un modelo pre-entrenado con datos propios para especializarlo. Caro pero efectivo para dominios muy específicos.</span></div>
+    <div class="gitem"><span class="gterm">RAG</span><span class="gdef">Retrieval-Augmented Generation. Dar al LLM documentos relevantes como contexto en cada consulta. Alternativa más barata al fine-tuning para incorporar conocimiento propio.</span></div>
+    <div class="gitem"><span class="gterm">Vector Database</span><span class="gdef">Base de datos optimizada para buscar documentos por similitud semántica. Compara embeddings. Ej: Pinecone, Weaviate, Chroma, pgvector. Componente central de RAG.</span></div>
+    <div class="gitem"><span class="gterm">Drift</span><span class="gdef"><strong>Data drift:</strong> los datos de entrada cambian con el tiempo. <strong>Concept drift:</strong> la relación entre inputs y outputs cambia (el mundo cambió). Ambos degradan el modelo.</span></div>
+    <div class="gitem"><span class="gterm">Baseline</span><span class="gdef">El punto de comparación mínimo. Si un modelo de fraude no supera a "siempre predecir no fraude", no sirve. El modelo debe superar el baseline para justificar su existencia.</span></div>
+    <div class="gitem"><span class="gterm">Latency vs Throughput</span><span class="gdef"><strong>Latencia:</strong> cuánto tarda en responder una sola consulta. <strong>Throughput:</strong> cuántas consultas puede procesar por segundo. Ambas importan en producción.</span></div>
+    <div class="gitem"><span class="gterm">MLflow / W&B</span><span class="gdef">Herramientas de experiment tracking. Registran automáticamente qué se probó, con qué parámetros, y con qué resultados. El cuaderno de laboratorio del data scientist.</span></div>
+    <div class="gitem"><span class="gterm">Batch vs Real-time</span><span class="gdef"><strong>Batch:</strong> el modelo procesa muchos datos juntos (ej: cada noche). <strong>Real-time (online):</strong> el modelo responde al instante a cada consulta. Implican arquitecturas muy diferentes.</span></div>
+    <div class="gitem"><span class="gterm">Ground truth</span><span class="gdef">Los datos correctos (etiquetados por humanos) contra los cuales se compara el modelo. Sin ground truth, no puedes medir si el modelo funciona.</span></div>
+    <div class="gitem"><span class="gterm">Shadow mode</span><span class="gdef">Correr el nuevo modelo en paralelo con el modelo actual, sin que sus predicciones afecten al usuario. Sirve para validar antes del cutover definitivo.</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ
+══════════════════════════════════ -->
+<div class="sec" id="quiz">
+  <h2>Quiz — Valida lo que absorbiste</h2>
+  <div class="subtitle">7 preguntas sobre el ciclo completo y genai</div>
+
+  <div class="quiz-card" id="q1">
+    <div class="qtext">Tu equipo dice "el modelo tiene 97% de accuracy detectando fraude". ¿Por qué deberías desconfiar de esa métrica sola?</div>
+    <div class="qopts">
+      <button onclick="qa('q1',this,false)">Porque accuracy no se puede calcular en modelos de fraude</button>
+      <button onclick="qa('q1',this,true)">Porque si el 97% de transacciones son legítimas, el modelo puede "predecir siempre legítimo" y tener 97% de accuracy sin detectar ningún fraude</button>
+      <button onclick="qa('q1',this,false)">Porque la accuracy correcta para fraude es siempre 99%</button>
+    </div>
+    <div class="qexp" id="q1-exp">En datos desbalanceados, accuracy engaña. El modelo necesita evaluarse con Recall (¿cuántos fraudes reales detectó?) y Precision (¿cuántas alertas eran fraude real?). Pide siempre la matriz de confusión.</div>
+  </div>
+
+  <div class="quiz-card" id="q2">
+    <div class="qtext">¿Cuál es la diferencia entre fine-tuning y RAG para un proyecto con LLMs?</div>
+    <div class="qopts">
+      <button onclick="qa('q2',this,false)">Son lo mismo, solo nombres distintos del mismo proceso</button>
+      <button onclick="qa('q2',this,false)">Fine-tuning es para texto, RAG es para imágenes</button>
+      <button onclick="qa('q2',this,true)">Fine-tuning reentrena el modelo con tus datos (caro); RAG le pasa documentos en cada consulta sin reentrenar (más barato y actualizable)</button>
+    </div>
+    <div class="qexp" id="q2-exp">RAG es la primera opción para la mayoría de proyectos empresariales. Fine-tuning vale cuando el dominio es muy técnico, el volumen de consultas es masivo, o necesitas latencia mínima.</div>
+  </div>
+
+  <div class="quiz-card" id="q3">
+    <div class="qtext">El data scientist entrega un modelo con excelentes métricas. Dos meses después, el desempeño cae sin que nadie cambie el código. ¿Qué ocurrió probablemente?</div>
+    <div class="qopts">
+      <button onclick="qa('q3',this,false)">El servidor se quedó sin memoria</button>
+      <button onclick="qa('q3',this,true)">Data drift o concept drift: los datos del mundo real cambiaron y el modelo ya no refleja la realidad actual</button>
+      <button onclick="qa('q3',this,false)">El modelo fue hackeado</button>
+    </div>
+    <div class="qexp" id="q3-exp">Los modelos se degradan aunque nadie toque el código. El mundo cambia, los usuarios cambian, los patrones cambian. Por eso el monitoreo y reentrenamiento periódico son parte del ciclo, no opcionales.</div>
+  </div>
+
+  <div class="quiz-card" id="q4">
+    <div class="qtext">¿Qué es un "hallucination" en el contexto de LLMs?</div>
+    <div class="qopts">
+      <button onclick="qa('q4',this,false)">Cuando el modelo tarda demasiado en responder</button>
+      <button onclick="qa('q4',this,false)">Cuando el modelo rechaza responder una pregunta</button>
+      <button onclick="qa('q4',this,true)">Cuando el modelo genera información falsa o inventada con total confianza, sin advertir que no la sabe</button>
+    </div>
+    <div class="qexp" id="q4-exp">Las alucinaciones son el riesgo principal en producción con LLMs. Mitigaciones: RAG (anclar respuestas en documentos reales), temperatura baja, guardrails, y evaluación continua de faithfulness.</div>
+  </div>
+
+  <div class="quiz-card" id="q5">
+    <div class="qtext">Un proyecto de AI lleva 3 meses. El equipo dice "el modelo estará listo la próxima semana". Llevan dicho eso 4 semanas. ¿Cuál es la causa más probable?</div>
+    <div class="qopts">
+      <button onclick="qa('q5',this,false)">El equipo no sabe programar bien</button>
+      <button onclick="qa('q5',this,true)">Problemas de datos no anticipados: datos faltantes, baja calidad, o el problema está mal definido y los requerimientos siguen cambiando</button>
+      <button onclick="qa('q5',this,false)">El servidor de cloud es demasiado lento</button>
+    </div>
+    <div class="qexp" id="q5-exp">El 60–80% del tiempo en AI se va en datos, no en el modelo. Si esto pasa, pregunta: ¿qué datos necesitamos que aún no tenemos? ¿El problema que queremos resolver está bien definido en términos de qué predice el modelo exactamente?</div>
+  </div>
+
+  <div class="quiz-card" id="q6">
+    <div class="qtext">¿Cuál es la diferencia entre un Data Scientist y un ML Engineer?</div>
+    <div class="qopts">
+      <button onclick="qa('q6',this,false)">No hay diferencia, son el mismo rol con distinto nombre según la empresa</button>
+      <button onclick="qa('q6',this,true)">El DS diseña y experimenta con modelos; el MLE los lleva a producción de forma robusta, escalable y mantenible</button>
+      <button onclick="qa('q6',this,false)">El DS trabaja con texto, el MLE trabaja con números</button>
+    </div>
+    <div class="qexp" id="q6-exp">En equipos pequeños una persona hace ambas. En equipos maduros están separados porque las habilidades son distintas: estadística vs ingeniería de software. Un gran modelo en un notebook no sirve sin el MLE que lo lleva a producción.</div>
+  </div>
+
+  <div class="quiz-card" id="q7">
+    <div class="qtext">El equipo propone construir un "agente de AI" para automatizar el proceso de onboarding de clientes. ¿Qué pregunta es más crítica hacer primero?</div>
+    <div class="qopts">
+      <button onclick="qa('q7',this,false)">¿Qué LLM (GPT-4 o Claude) vamos a usar?</button>
+      <button onclick="qa('q7',this,false)">¿Cuántos tokens de context window necesitamos?</button>
+      <button onclick="qa('q7',this,true)">¿Qué pasa cuando el agente comete un error? ¿Hay un humano que supervisa, y cómo se mide si el agente está funcionando bien?</button>
+    </div>
+    <div class="qexp" id="q7-exp">Los agentes fallan. La pregunta crítica no es la tecnología sino la gobernanza: quién supervisa, cómo se detectan errores, y qué proceso existe para corregir. Un agente sin supervisión en un proceso crítico es un riesgo operacional.</div>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+    document.querySelectorAll('nav button').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('onclick').includes("'" + id + "'"));
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function togglePipe(el) {
+    el.classList.toggle('open');
+  }
+
+  function qa(qId, btn, correct) {
+    const card = document.getElementById(qId);
+    card.querySelectorAll('button').forEach(b => {
+      b.disabled = true;
+      if (b !== btn) b.classList.add('reveal');
+    });
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    document.getElementById(qId + '-exp').style.display = 'block';
+  }
+</script>
+</body>
+</html>
